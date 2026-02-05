@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import styles from './dashbordUser.module.css';
+import styles from './DashbordUser.module.css';
 import NavBar from '../../../components/NavBar/NavBar.jsx';
 import SideBar from '../../../components/SideBar/SideBar.jsx';
 import { userAPI } from '../../../services/api';
