@@ -6,7 +6,7 @@ import ChatBot from "../../../components/chatbot/ChatBot";
 import Pagination from "../../../components/pagintion/Pagination";
 import SideBarCompany from "../../../components/SideBar/SideBarCompany";
 import Search from "../../../components/searchbar/SearchBar";
-import NavBarCompany from "../../../components/NavbarCompany/NavbarCompany";
+import NavBarCompany from "../../../components/NavBarCompany/NavBarCompany.jsx";
 import Alert from "../../../components/Alert/Alert"; 
 import Logo from "../../../assets/LOGO.svg";
 import styles from "./UserPostPage.module.css";
