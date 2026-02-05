@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
 
-import styles from './dashbordcompany.module.css';
-import NavBarCompany from '../../../components/NavbarCompany/NavbarCompany.jsx';
+import styles from './DashbordCompany.module.css';
+import NavBarCompany from '../../../components/navbarcompany/navbarcompany.jsx';
 import SideBarCompany from '../../../components/SideBar/SideBarCompany.jsx';
 import { companyAPI } from '../../../services/api';
 import Alert from '../../../components/Alert/Alert.jsx';
