@@ -51,7 +51,7 @@ app.get('/health', (req, res) => {
     nodeVersion: process.version
   };
   
-  console.log("cron job is on") ; 
+   
   res.status(200).json(healthData);
 });
 
