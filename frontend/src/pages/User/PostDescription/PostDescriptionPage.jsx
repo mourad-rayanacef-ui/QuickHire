@@ -110,6 +110,11 @@ export default function JobDetailsPage() {
   const [notification, setNotification] = useState(null);
   const [hasDispatchedEvent, setHasDispatchedEvent] = useState(false);
 
+  // ✅ FIX: Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []); // Empty dependency array means this runs once when component mounts
+
   const getUserId = () => {
     try {
       const accountType = localStorage.getItem("accountType");
