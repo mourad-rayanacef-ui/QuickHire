@@ -834,9 +834,10 @@ form.sign-in-form {
   }
 
   .btn.transparent {
-    width: 7rem;
+    width: 10rem;
     height: 2.3rem;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
+    white-space: normal;
   }
 
   .image {
