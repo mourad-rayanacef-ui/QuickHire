@@ -1,4 +1,4 @@
-import styles from "./navbarcompany.module.css";
+import styles from "./NavbarCompany.module.css";
 import logo from "../../assets/LOGO.svg";
 import Notification from "../../assets/notification.svg"
 import { useNavigate } from 'react-router-dom'
