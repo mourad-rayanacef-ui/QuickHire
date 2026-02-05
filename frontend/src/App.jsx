@@ -23,7 +23,7 @@ import JobPage from "../src/pages/User/JobPostPage/JobPostPage.jsx"
 
 import CSettingsLayout from "./pages/Company/CompanySettingsPage/CSettingsLayout.jsx"
 
-import TermsAndConditions from './pages/TermsAndConditions/TermsAndConditions.jsx'
+import TermsAndConditions from "./pages/TermsandConditions/TermsAndConditions.jsx";
 import JobPosting from './pages/postjob/JobPosting.jsx' 
 
 import HomePage from './pages/landingpage/Landingpage.jsx'
