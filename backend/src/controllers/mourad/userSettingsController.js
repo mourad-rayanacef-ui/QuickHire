@@ -183,6 +183,7 @@ const updateUserProfile = async (req, res) => {
 
     // ✅ INVALIDATE CACHE
     await redis.del(`user:profile:settings:${userIdInt}`);
+    await redis.del(`user:profile:${userIdInt}`);
 
     res.json({
       success: true,
@@ -268,6 +269,7 @@ const updateUserSocialLinks = async (req, res) => {
 
     // ✅ INVALIDATE CACHE
     await redis.del(`user:profile:settings:${userIdInt}`);
+    await redis.del(`user:profile:${userIdInt}`);
 
     res.json({
       success: true,
@@ -324,6 +326,7 @@ const updateUserEmail = async (req, res) => {
 
     // ✅ INVALIDATE CACHE
     await redis.del(`user:profile:settings:${userIdInt}`);
+    await redis.del(`user:profile:${userIdInt}`);
 
     res.json({
       success: true,
@@ -387,6 +390,7 @@ const updateUserPassword = async (req, res) => {
 
     // ✅ INVALIDATE CACHE
     await redis.del(`user:profile:settings:${userIdInt}`);
+    await redis.del(`user:profile:${userIdInt}`);
 
     res.json({
       success: true,

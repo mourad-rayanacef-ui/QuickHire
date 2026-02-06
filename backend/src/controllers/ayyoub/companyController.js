@@ -6,7 +6,7 @@ const redis = require("../../config/redis.js"); // ✅ Redis Import
 exports.getProfile = async (req, res) => {
   try {
     const companyId = req.company.companyId;
-    const cacheKey = `company:profile:settings:${companyId}`;
+    const cacheKey = `company:profile:${companyId}`;
 
     // ==========================================
     // ✅ 1. SAFER CACHE RETRIEVAL
@@ -131,7 +131,7 @@ exports.updateProfile = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
-    await redis.del(`company:profile:settings:${companyId}`);
+    await redis.del(`company:profile:${companyId}`);
 
     res.status(200).json({
       success: true,
@@ -458,7 +458,7 @@ exports.addManager = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE (Profile includes managers list)
-    await redis.del(`company:profile:settings:${companyId}`);
+    await redis.del(`company:profile:${companyId}`);
 
     res.status(201).json({
       success: true,
@@ -569,7 +569,7 @@ exports.acceptApplication = async (req, res) => {
     }
 
     // ✅ INVALIDATE CACHE (Multi-touch invalidation)
-    await redis.del(`company:profile:settings:${companyId}`);       // Profile might show recent jobs/apps
+    await redis.del(`company:profile:${companyId}`);       // Profile might show recent jobs/apps
     await redis.del(`dashboard:company:stats:${companyId}`); // Applicants count down, Chat count up
     await redis.del(`dashboard:company:jobs:${companyId}`);  // Job card applicants count down
     await redis.del(`dashboard:user:stats:${application.User_id}`); // User apps count down, notifications up
@@ -748,7 +748,7 @@ exports.deleteApplication = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
-    await redis.del(`company:profile:settings:${companyId}`);
+    await redis.del(`company:profile:${companyId}`);
     await redis.del(`dashboard:company:stats:${companyId}`);
     await redis.del(`dashboard:company:jobs:${companyId}`);
     // Note: application.User_id is needed to invalidate user stats, 

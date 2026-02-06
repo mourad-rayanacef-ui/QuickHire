@@ -24,7 +24,7 @@ const getCompanyProfile = async (req, res) => {
     }
 
     // ✅ 1. Define Cache Key
-    const cacheKey = `company:profile:${companyIdInt}`;
+    const cacheKey = `company:profile:settings:${companyIdInt}`;
 
     // ✅ 2. Check Cache
     const cachedData = await redis.get(cacheKey);
@@ -229,6 +229,7 @@ const updateCompanyProfile = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
+    await redis.del(`company:profile:settings:${companyIdInt}`);
     await redis.del(`company:profile:${companyIdInt}`);
 
     // ... [Response Formatting kept as is] ...
@@ -320,6 +321,7 @@ const updateSocialLinks = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
+    await redis.del(`company:profile:settings:${companyIdInt}`);
     await redis.del(`company:profile:${companyIdInt}`);
 
     res.json({
@@ -378,6 +380,7 @@ const updateCompanyEmail = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
+    await redis.del(`company:profile:settings:${companyIdInt}`);
     await redis.del(`company:profile:${companyIdInt}`);
 
     res.json({
@@ -441,6 +444,7 @@ const updateCompanyPassword = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE (Good practice, even if profile JSON doesn't contain password)
+    await redis.del(`company:profile:settings:${companyIdInt}`);
     await redis.del(`company:profile:${companyIdInt}`);
 
     res.json({
