@@ -82,54 +82,9 @@
     }
 }
 
-/* Mobile Styles - Show logo and notification */
-@media (max-width: 767px) {
+/* Mobile Styles - Hide navbar completely, using MobileHeader instead */
+@media (max-width: 900px) {
     .NavBar {
-        display: flex;
-        height: 10vh;
-        /* Smaller height for mobile */
-        justify-content: center;
-        /* Center the logo */
-        align-items: center;
-        padding: 0 4vw;
-        position: relative;
-        /* For absolute positioning of notification */
-    }
-
-    .logo {
-        width: 45vw;
-        /* Adjust logo size for mobile */
-        height: 8vh;
-        top: 0;
-        /* Reset positioning */
-        margin-left: 0;
-        /* Reset margin */
-        align-self: center;
-        /* Center vertically */
-        justify-content: center;
-        /* Center horizontally */
-        align-items: center;
-        /* Center logo content */
-    }
-
-    .secondDiv {
-        display: flex;
-        gap: 0.8rem;
-        padding-right: 0;
-        align-items: center;
-        position: absolute;
-        right: 4vw;
-        /* Position on the right */
-    }
-
-    .BackToHomeButton {
         display: none;
-        /* Hide Post Job button on mobile */
-    }
-
-    .Notification {
-        width: 1.5rem;
-        height: 1.5rem;
-        cursor: pointer;
     }
 }
