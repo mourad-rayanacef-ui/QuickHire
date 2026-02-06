@@ -19,8 +19,8 @@
 .ProfileHeroSection>.CompanyProfilePhoto {
     width: 10vw !important;
     height: 10vw !important;
-    min-width: 80px !important;
-    min-height: 80px !important;
+    min-width: 10vw !important;
+    min-height: 10vw !important;
     padding: 0 !important;
     margin: 0 !important;
     margin-left: 3vw !important;
@@ -144,15 +144,16 @@
         width: 94% !important;
         align-self: center;
         justify-content: center;
-        gap: 5vw;
+        gap: 2vw;
         padding-bottom: 3vh !important;
+        flex-direction: column;
     }
 
     .ProfileHeroSection {
-        flex-direction: column;
+        flex-direction: column !important;
         align-items: center;
         justify-content: center;
-        gap: 4vw;
+        gap: 2vw;
         min-height: 40vh;
         padding: 4vh 0 2vh 0;
         width: 98vw;
@@ -180,6 +181,7 @@
         width: 100%;
         text-align: center;
         padding: 0 2vw;
+        padding-left: 0 !important;
     }
 
     .SmallInfos {
