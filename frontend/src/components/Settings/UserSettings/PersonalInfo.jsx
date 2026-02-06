@@ -52,8 +52,8 @@ function PersonalInfo() {
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
 
-  // --- 1. Fetch Profile Data (useQuery) ---
-  const { data: profileData, isLoading, isError } = useQuery({
+  // --- 1. Fetch Profile Data (useQuery) --- 
+  const { data: profileData, isLoading } = useQuery({
     queryKey: ['userProfileSettings', userId],
     queryFn: async () => {
       if (!userId) throw new Error("No User ID found");

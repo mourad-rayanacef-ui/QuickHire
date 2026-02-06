@@ -97,7 +97,7 @@ const CronJobs = () => {
           };
 
           // Generate the PDF Buffer
-          const pdfBuffer = await generateAttestationPDF(pdfData);
+          let pdfBuffer = await generateAttestationPDF(pdfData);
 
           // Send Email with Attachment
           if (userEmail) {
