@@ -105,13 +105,19 @@
   }
 }
 
-/* === BASE LAYOUT === */
+/* === FIXED: BASE LAYOUT === */
 .container {
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
   box-sizing: border-box;
   position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  left: 0;
+  right: 0;
 }
 
 /* === MOBILE HEADER (Menu, Logo, Notification) === */
@@ -124,11 +130,16 @@
   height: 60px;
   background-color: #fff;
   border-bottom: 1px solid #e0e1e4;
+
   z-index: 50;
   justify-content: space-between;
+
   align-items: center;
   padding: 0 1rem;
   animation: fadeInDown 0.5s ease-out;
+  width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .MobileMenuIcon {
@@ -174,7 +185,7 @@
   z-index: 111;
 }
 
-/* === SIDEBAR CONTAINER (Desktop) === */
+/* === FIXED: SIDEBAR CONTAINER (Desktop) === */
 .SideBarContainer {
   width: clamp(70px, 13vw, 220px);
   position: fixed;
@@ -187,6 +198,7 @@
   overflow-y: auto;
   display: block;
   visibility: visible;
+  box-sizing: border-box;
 }
 
 /* ============================================= */
@@ -196,13 +208,17 @@
 /* === MAIN CONTENT === */
 .Main {
   margin-left: clamp(70px, 13vw, 220px);
-  width: calc(100% - clamp(70px, 13vw, 220px));
+  width: calc(100vw - clamp(70px, 13vw, 220px));
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   padding-top: 40px;
   box-sizing: border-box;
   background: #fff;
+  position: relative;
+  left: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* === DESKTOP HEADER === */
@@ -217,6 +233,9 @@
   background-color: #fff;
   animation: fadeInDown 0.6s ease-out;
   margin-top: 30px;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .SearchBar {
@@ -226,6 +245,8 @@
   justify-content: space-between;
   width: 100%;
   flex: 1;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 /* FIXED: Smaller header text for company side */
@@ -244,6 +265,9 @@
   background-clip: text;
   transition: all 0.3s ease;
   flex: 0 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .SearchBar h3:hover {
@@ -255,7 +279,6 @@
 }
 
 /* === DESKTOP SEARCH HEADER === */
-/* FIXED: Reduced spacing between header and "All Candidates" */
 .SearchHeader {
   display: flex;
   flex-direction: row;
@@ -263,6 +286,7 @@
   align-items: center;
   position: relative;
   top: 0.2vh;
+
   /* CHANGED from 0.5vh to 0.2vh */
   padding-bottom: 0.3rem;
   /* CHANGED from 0.5rem to 0.3rem */
@@ -270,11 +294,13 @@
   animation: fadeInUp 0.7s ease-out;
   margin-top: 0.5rem;
   /* ADDED to reduce space from header */
+
 }
 
 .SearchHeader img {
   animation: float 3s ease-in-out infinite;
   transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 
 .SearchHeader img:hover {
@@ -296,7 +322,7 @@
   box-sizing: border-box;
   animation: fadeInUp 0.8s ease-out;
   margin-top: 0;
-  /* ADDED to reduce space */
+
 }
 
 .Filter {
@@ -311,6 +337,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   animation: fadeInRight 0.8s ease-out;
   transition: all 0.3s ease;
+  max-width: 260px;
 }
 
 .Filter:hover {
@@ -330,17 +357,23 @@
   flex-direction: column;
   gap: 0.8rem;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
-.JobPost {
+/* === CANDIDATE LIST CONTAINER === */
+.CandidateList {
   display: flex;
   flex-direction: column;
+
   gap: 0.8rem;
   width: 100%;
   /* ADDED to ensure full width */
+
 }
 
-/* === CANDIDATE CARDS WITH STAGGERED ANIMATION === */
+/* === CANDIDATE CARDS === */
 .CandidateCard {
   display: flex;
   justify-content: space-between;
@@ -356,9 +389,11 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+
   /* ADDED to ensure full width */
   max-width: 100%;
   /* ADDED to prevent restriction */
+
 }
 
 .CandidateCard::before {
@@ -383,6 +418,7 @@
 }
 
 /* Staggered animation delays */
+
 .JobPost>.CandidateCard:nth-child(1) {
   animation-delay: 0.1s;
 }
@@ -396,54 +432,8 @@
 }
 
 .JobPost>.CandidateCard:nth-child(4) {
+
   animation-delay: 0.4s;
-}
-
-.CandidateInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.CandidateInfo h2 {
-  font-size: clamp(0.9rem, 1.8vw, 1.1rem);
-  color: #0077b6;
-  margin: 0;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.CandidateCard:hover .CandidateInfo h2 {
-  color: #3b5bdb;
-  transform: translateX(5px);
-}
-
-.CandidateInfo p {
-  font-size: clamp(0.8rem, 1.3vw, 0.9rem);
-  color: #444;
-  margin: 0;
-  transition: color 0.3s ease;
-}
-
-.CandidateCard:hover .CandidateInfo p {
-  color: #222;
-}
-
-.CandidateImage img {
-  width: clamp(40px, 5vw, 60px);
-  height: clamp(40px, 5vw, 60px);
-  object-fit: cover;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: scaleIn 0.5s ease-out;
-}
-
-.CandidateCard:hover .CandidateImage img {
-  transform: scale(1.15) rotate(5deg);
-  border-color: #3b5bdb;
-  box-shadow: 0 8px 16px rgba(59, 91, 219, 0.3);
 }
 
 .noResults {
@@ -452,6 +442,8 @@
   font-size: 1rem;
   color: #666;
   animation: fadeInUp 0.6s ease-out;
+  width: 100%;
+  max-width: 100%;
 }
 
 .Pagination {
@@ -459,10 +451,12 @@
   justify-content: center;
   margin-top: 1.5rem;
   animation: fadeInUp 0.8s ease-out;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ============================================= */
-/* TABLET STYLES (1024px - 769px) - FIXED FULL WIDTH */
+/* TABLET STYLES (1024px - 769px) - FIXED */
 /* ============================================= */
 @media (max-width: 1024px) and (min-width: 769px) {
 
@@ -471,25 +465,28 @@
     width: clamp(60px, 10vw, 180px);
   }
 
-  /* Main content full width on tablet */
   .Main {
     margin-left: clamp(60px, 10vw, 180px);
-    width: calc(100% - clamp(60px, 10vw, 180px));
+    width: calc(100vw - clamp(60px, 10vw, 180px));
     padding-top: 80px;
+    left: 0;
+    padding-left: 20px; /* ADDED: Push content right to avoid sidebar overlap */
   }
 
-  /* Header adjustments for tablet */
   .Header {
-    padding: 1rem 2rem;
+    padding: 1rem 2rem 1rem 2.5rem; /* CHANGED: Increased left padding */
     margin-top: 1.5rem;
+    max-width: calc(100vw - clamp(60px, 10vw, 180px));
   }
 
   /* FIXED: Smaller header text on tablet */
   .SearchBar h3 {
     font-size: 1.4rem;
-    /* Reduced from 1.6rem */
+
     white-space: normal;
     line-height: 1.3;
+    max-width: 100%;
+    margin-left: 10px; /* ADDED: Push text right */
   }
 
   /* Filter panel */
@@ -504,11 +501,13 @@
     /* Changed from static */
     margin-bottom: 0;
     /* Changed from 1.5rem */
+
   }
 
   /* FIXED: Pub container - keep row-reverse layout on tablet */
   .Pub {
     flex-direction: row-reverse;
+
     /* Changed from column */
     gap: clamp(1rem, 2vw, 1.5rem);
     /* Keep original */
@@ -519,21 +518,28 @@
     /* Keep original */
     margin-top: 0;
     /* Keep original */
+
   }
 
   /* Candidates section full width on tablet */
   .Candidates {
     width: 100%;
     flex: 1;
+    max-width: 100%;
+    margin-left: 5px; /* ADDED: Push candidates right */
   }
+
 
   /* FIXED: Candidate cards full width on tablet - NO MAX-WIDTH RESTRICTION */
   .JobPost {
+
     width: 100%;
+    gap: 1.2rem;
   }
 
   .CandidateCard {
     width: 100%;
+
     max-width: none;
     /* REMOVED max-width restriction */
     padding: clamp(0.8rem, 1.5vw, 1.2rem);
@@ -564,16 +570,27 @@
     padding-bottom: 0.5rem;
     margin-top: 0.5rem;
     /* Added to reduce space from header */
+
   }
 
   .SearchHeader img {
     width: 70px;
     height: 70px;
   }
+  
+  /* ADDED: Ensure search header text doesn't overlap sidebar */
+  .SearchHeader > div {
+    margin-left: 5px;
+  }
+  
+  /* ADDED: Push mobile filter container right */
+  .MobileFilterContainer {
+    margin-left: 10px;
+  }
 }
 
 /* ============================================= */
-/* MOBILE STYLES (900px and below) */
+/* MOBILE STYLES (900px and below) - FIXED */
 /* ============================================= */
 @media (max-width: 900px) {
 
@@ -582,14 +599,18 @@
     display: flex;
     z-index: 50;
     animation: fadeInDown 0.5s ease-out;
+    width: 100vw;
+    left: 0;
+    right: 0;
   }
 
-  /* Sidebar hidden on mobile - controlled by MobileToggles */
+  /* Sidebar hidden on mobile */
   .SideBarContainer {
     width: 0;
     background-color: transparent;
     overflow: visible;
     z-index: 200;
+    display: none;
   }
 
   /* Navbar hidden on mobile */
@@ -597,39 +618,52 @@
     display: none;
   }
 
-  /* Main content takes full width */
+  /* Main content takes full width - FIXED LEFT SHIFT */
   .Main {
     margin-left: 0;
-    width: 100%;
+    width: 100vw;
     padding-top: 70px;
     animation: fadeInUp 0.6s ease-out;
+    left: 0;
+    right: 0;
+    overflow-x: hidden;
+    padding-left: 0; /* RESET: No left padding on mobile */
   }
 
-  /* MOBILE HEADER */
+  /* MOBILE HEADER - FIXED LAYOUT */
   .Header {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1rem 0.5rem 1rem;
     border-bottom: 2px solid #e0e0e0;
     background-color: #fff;
     animation: fadeInDown 0.6s ease-out;
+    width: 100vw;
+    box-sizing: border-box;
+    margin: 0;
+    left: 0;
+    right: 0;
   }
 
   .SearchBar {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.5rem;
     animation: scaleIn 0.7s ease-out;
+    width: 100%;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+    max-width: 100vw;
   }
 
   /* FIXED: Smaller mobile header text */
   .SearchBar h3 {
     font-size: 1.1rem;
-    /* Reduced from 1.2rem */
+
     font-weight: 600;
     color: #333;
     position: relative;
@@ -638,6 +672,10 @@
     text-transform: capitalize;
     animation: fadeInUp 0.5s ease-out;
     line-height: 1.3;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0; /* RESET: No margin on mobile */
   }
 
   .SearchBar h3::after {
@@ -660,14 +698,50 @@
   .MobileFilterContainer {
     display: flex;
     justify-content: center;
-    margin: 0.5rem 1rem;
+    margin: 0.5rem 0;
     padding: 0.5rem;
     border-radius: 1rem;
     background-color: #f8fafc;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     animation: fadeInDown 0.4s ease-out;
-    width: 100%;
+    width: calc(100vw - 2rem);
+    box-sizing: border-box;
+    max-width: 100%;
+    margin-left: 0; /* RESET: No margin on mobile */
   }
+
+  /* FIXED: Pub container for mobile */
+  .Pub {
+    flex-direction: column;
+    padding: 0.5rem 1rem 1rem 1rem;
+    animation: fadeInUp 0.8s ease-out;
+    margin-top: 0;
+    width: 100vw;
+    max-width: 100vw;
+    box-sizing: border-box;
+    gap: 0.5rem;
+    left: 0;
+    right: 0;
+    margin-left: 0; /* RESET: No margin on mobile */
+  }
+
+  /* FIXED: Candidates section for mobile */
+  .Candidates {
+    width: 100vw;
+    padding: 0;
+    gap: 0.5rem;
+    max-width: 100vw;
+    margin-left: 0; /* RESET: No margin on mobile */
+  }
+
+  /* FIXED: Candidate list container */
+  .CandidateList {
+    width: 100%;
+    gap: 1rem;
+    padding: 0;
+    max-width: 100%;
+  }
+
 
   /* Make candidate cards bigger on mobile with enhanced animations */
   .CandidateCard {
@@ -704,10 +778,12 @@
   }
 
   /* FIXED: Keep search header elements with reduced spacing */
+
   .SearchHeader {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+
     gap: 1rem;
     margin-bottom: 0.3rem;
     /* Reduced */
@@ -715,19 +791,47 @@
     /* Reduced */
     top: 0.5vh;
     /* Reduced */
+
     transform: translateX(0);
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
     animation: fadeInLeft 0.7s ease-out;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0; /* RESET: No margin on mobile */
+  }
+
+  .SearchHeader > div {
+    flex: 1;
+    max-width: calc(100% - 70px);
+    margin-left: 0; /* RESET: No margin on mobile */
+  }
+
+  .SearchHeader h5 {
+    font-size: 1rem;
+    margin: 0 0 0.2rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .SearchHeader p {
+    font-size: 0.85rem;
+    margin: 0;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .SearchHeader img {
+
     width: 70px;
     /* Slightly smaller */
     height: 70px;
+
     flex-shrink: 0;
     animation: bounce 2s ease-in-out infinite;
   }
+
 
   .Pub {
     flex-direction: column;
@@ -737,17 +841,19 @@
     /* Ensure no extra space */
   }
 
+
   .Filter {
     display: none;
-    width: 100%;
-    position: static;
   }
+
 
   /* Make JobPost container bigger on mobile */
   .JobPost {
     gap: 1.5rem;
     /* Slightly reduced */
+
     width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -755,120 +861,63 @@
   .SearchBar {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.3rem;
+    gap: 0.5rem;
   }
 
   .SearchBar h3 {
+
     padding-top: 0.8em;
     /* Reduced from 1em */
+
   }
 
-  .SearchBar input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-    height: auto;
-    padding: 1rem 0.6rem;
+  .Pub {
+    padding: 0.5rem 0.8rem 1rem 0.8rem;
   }
 
-  .SearchBar button {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.2rem 0.7rem;
-    font-size: 0.8rem;
-    height: auto;
+  .CandidateList {
+    gap: 0.8rem;
   }
-
-  /* FIXED: Ensure cards take full width at 768px */
+  
   .CandidateCard {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .SearchHeader {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .JobPost {
-    gap: 1.5rem;
-    width: 100%;
-  }
-}
-
-@media (max-width: 600px) {
-  .CandidateCard {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    animation: fadeInUp 0.6s ease-out backwards;
-    width: 100%;
-  }
-
-  .CandidateCard:hover {
-    transform: scale(1.05) rotateY(5deg);
-  }
-
-  .CandidateImage img {
-    margin-top: 0.5rem;
-    animation: scaleIn 0.8s ease-out;
-  }
-
-  .CandidateCard:hover .CandidateImage img {
-    transform: scale(1.3) rotate(360deg);
+    padding: 0.9rem;
   }
 }
 
 @media (max-width: 480px) {
+  .MobileHeader {
+    height: 55px;
+  }
+
+  .Main {
+    padding-top: 55px;
+  }
+
   .Header {
-    padding: 0.5rem 0.5rem;
-    animation: fadeInDown 0.5s ease-out;
+    padding: 0.8rem 0.5rem 0.3rem 0.5rem;
   }
 
   /* FIXED: Even smaller header text on very small screens */
   .SearchBar h3 {
     font-size: 0.95rem;
-    /* Reduced from 1rem */
+   /* Reduced from 1rem */
     margin-bottom: 0.15rem;
     /* Reduced */
     padding-bottom: 0.15rem;
     /* Reduced */
+
     animation: fadeInUp 0.6s ease-out;
     line-height: 1.2;
   }
 
-  .SearchBar input[type="text"] {
-    font-size: 0.8rem;
-    min-width: 0;
-    height: auto;
-    padding: 0.15rem 0.5rem;
-    transition: all 0.3s ease;
-  }
-
-  .SearchBar input[type="text"]:focus {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(59, 91, 219, 0.2);
-  }
-
-  .SearchBar button {
-    font-size: 0.8rem;
-    padding: 0.15rem 0.7rem;
-    height: auto;
-    transition: all 0.3s ease;
-  }
-
-  .SearchBar button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(59, 91, 219, 0.3);
-  }
-
-  /* FIXED: Further reduce spacing in search header */
+  /* FIXED: Search header for very small screens */
   .SearchHeader {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.3rem;
     transform: translateX(0);
+
     top: 0.3vh;
     /* Reduced */
     animation: fadeInLeft 0.7s ease-out;
@@ -880,10 +929,20 @@
     width: 55px;
     /* Smaller */
     height: 55px;
+
     animation: pulse 2s ease-in-out infinite;
   }
 
+  .Pub {
+    padding: 0.3rem 0.5rem 0.8rem 0.5rem;
+  }
+
+  .CandidateList {
+    gap: 0.6rem;
+  }
+  
   .CandidateCard {
+
     padding: 1.8rem;
     /* Slightly reduced */
     animation: fadeInUp 0.6s ease-out backwards;
@@ -998,23 +1057,21 @@
   .MobileFilterContainer .buttons {
     width: 14px;
     height: 14px;
+
   }
 }
 
 /* Loading blur effect */
 .loading-blur {
   opacity: 0.6;
-  filter: blur(2px);
+  filter: blur(1px);
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-
-
-
 /* --- SKELETON / SHIMMER STYLES --- */
-
 .skeletonCard {
+
   background-color: #fff;
   border: 1px solid #E0E6F0;
   border-radius: 12px;
@@ -1108,61 +1165,65 @@
 .skeletonCard {
   border: 1px solid #e0e0e0;
   border-radius: 0.8rem;
+
   background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  padding: clamp(0.8rem, 1.5vw, 1.2rem);
-  width: 100%;
-  max-width: 700px;
+  border: 1px solid #E0E6F0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.8rem, 1.5vw, 1rem);
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  margin-bottom: 2vh;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  max-width: 100%;
 }
 
 .skeletonHeader {
   display: flex;
   align-items: center;
-  gap: clamp(0.6rem, 1.5vw, 1rem);
-  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .skeletonAvatar {
-  width: clamp(2.5rem, 5vw, 3rem);
-  height: clamp(2.5rem, 5vw, 3rem);
-  border-radius: 0.5rem;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
   flex-shrink: 0;
 }
 
 .skeletonTitleBlock {
   flex: 1;
-  min-width: 0;
-}
-
-.skeletonLine {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
 }
 
 .skeletonTags {
   display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.4rem, 1vw, 0.5rem);
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .skeletonFooter {
   display: flex;
   justify-content: flex-end;
-  margin-top: auto;
+  margin-top: 10px;
+}
+
+.skeletonLine {
+  background-color: #f0f2f5;
+  border-radius: 4px;
 }
 
 .shimmer {
-  animation: shimmer 1.5s infinite;
+  position: relative;
+  overflow: hidden;
 }
+
 
 @keyframes shimmer {
   0% {
@@ -1170,57 +1231,11 @@
   }
 
   100% {
-    background-position: 200% 0;
+    transform: translateX(100%);
   }
 }
 
-.loading-blur {
-  opacity: 0.6;
-  filter: blur(1px);
-  transition: opacity 0.3s, filter 0.3s;
-}
-
-/* ... rest of existing styles ... */
-/* Add to your existing CSS file */
-.removedInfo {
-  font-size: 0.875rem;
-  color: #666;
-  margin-top: 0.25rem;
-  font-style: italic;
-}
-
-.loadMoreButton {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-top: 10px;
-  transition: background-color 0.2s;
-}
-
-.loadMoreButton:hover {
-  background-color: #0056b3;
-}
-
-.noResults {
-  text-align: center;
-  padding: 40px 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  margin: 20px 0;
-  border: 1px dashed #ddd;
-}
-
-.noResults p {
-  margin: 10px 0;
-  color: #666;
-}
-
-/* Add these styles to your existing CSS */
-
+/* No results styling */
 .noResults {
   text-align: center;
   padding: 40px 20px;
@@ -1230,6 +1245,8 @@
   border: 1px dashed #ddd;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   animation: fadeInUp 0.6s ease-out;
+  width: 100%;
+  max-width: 100%;
 }
 
 .noResults p {
@@ -1269,12 +1286,60 @@
     transform: rotate(360deg);
   }
 }
-
-/* Remove the old pageNavButtons styles if they exist */
-.pageNavButtons {
-  display: none;
+/* ============================================= */
+/* LARGE DESKTOP STYLES (1440px and above) - FIXED */
+/* ============================================= */
+@media (min-width: 1440px) {
+  /* Increase padding at the top to prevent navbar overlap */
+  .Main {
+    padding-top: 60px; /* Increased from 40px */
+  }
+  
+  /* Increase margin at the top to push header down further */
+  .Header {
+    margin-top: 40px; /* Increased from 30px */
+    padding: 0.8rem 4rem; /* Slightly increased padding for larger screens */
+  }
+  
+  /* Ensure search header has enough space */
+  .SearchHeader {
+    margin-top: 1rem; /* Increased from 0.5rem */
+  }
+  
+  /* Make sure filter stays properly positioned */
+  .Filter {
+    top: 100px; /* Increased from 90px */
+  }
+}
+/* ============================================= */
+/* LARGE DESKTOP STYLES (1440px and above) - FIXED */
+/* ============================================= */
+@media (min-width: 1440px) {
+  /* Increase padding at the top to prevent navbar overlap */
+  .Main {
+    padding-top: 60px; /* Increased from 40px */
+  }
+  
+  /* Increase margin at the top to push header down further */
+  .Header {
+    margin-top: 40px; /* Increased from 30px */
+    padding: 0.8rem 4rem; /* Slightly increased padding for larger screens */
+  }
+  
+  /* Ensure search header has enough space */
+  .SearchHeader {
+    margin-top: 1rem; /* Increased from 0.5rem */
+  }
+  
+  /* Make sure filter stays properly positioned */
+  .Filter {
+    top: 100px; /* Increased from 90px */
+  }
 }
 
-.navButton {
-  display: none;
+/* ============================================= */
+/* TABLET STYLES (1024px - 769px) - FIXED */
+/* ============================================= */
+@media (max-width: 1024px) and (min-width: 769px) {
+  /* ... existing tablet styles ... */
 }

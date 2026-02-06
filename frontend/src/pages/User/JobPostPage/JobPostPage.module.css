@@ -1158,3 +1158,33 @@
 .loadMoreButton {
   display: none;
 }
+/* ============================================= */
+/* LARGE DESKTOP STYLES (1440px and above) - FIXED */
+/* ============================================= */
+@media (min-width: 1440px) {
+  /* Increase padding at the top to prevent navbar overlap */
+  .Main {
+    padding-top: 60px; /* Increased from 40px */
+  }
+  
+  /* Increase margin at the top to push header down further */
+  .Header {
+    margin-top: 40px; /* Increased from 30px */
+    padding: 0.8rem 4rem; /* Slightly increased padding for larger screens */
+  }
+  
+  /* Ensure search header has enough space */
+  .SearchHeader {
+    margin-top: 1rem; /* Increased spacing */
+  }
+  
+  /* Make sure filter stays properly positioned */
+  .Filter {
+    top: 100px; /* Increased from 90px */
+  }
+  
+  /* Adjust Pub container for better spacing */
+  .Pub {
+    padding: 1rem clamp(1.5rem, 3vw, 2.5rem); /* Increased padding */
+  }
+}
