@@ -48,7 +48,7 @@ function SocialLinksPage() {
     const { data: profileData, isLoading } = useQuery({
         queryKey: ['userProfile', userId],
         queryFn: async () => {
-            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/Profile/${userId}`, {
+            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}`, {
                 headers: { 
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}` 
@@ -75,7 +75,7 @@ function SocialLinksPage() {
     // --- 2. Mutation: Save Links ---
     const updateLinksMutation = useMutation({
         mutationFn: async (newLinks) => {
-            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/Profile/${userId}/SocialLinks`, {
+            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}/SocialLinks`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

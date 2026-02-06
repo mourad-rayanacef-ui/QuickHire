@@ -10,30 +10,30 @@ const publicationsController = require('../../controllers/mourad/publicationsCon
 // ========================================
 
 
-router.get( '/Profile/:userId',  userSettingsController.getUserProfile);
+router.get( '/ProfileSettings/:userId',  userSettingsController.getUserProfile);
 
 // UPDATE user profile (Personal Information page - Save Changes button)
-// PATCH /api/User/Profile/:userId
-router.patch(  '/Profile/:userId',userSettingsController.updateUserProfile );
+// PATCH /api/User/ProfileSettings/:userId
+router.patch(  '/ProfileSettings/:userId',userSettingsController.updateUserProfile );
 
 // UPDATE social links (Social Links page - Save Changes button)
-// PATCH /api/User/Profile/:userId/SocialLinks
+// PATCH /api/User/ProfileSettings/:userId/SocialLinks
 router.patch(
-  '/Profile/:userId/SocialLinks',
+  '/ProfileSettings/:userId/SocialLinks',
   userSettingsController.updateUserSocialLinks
 );
 
 // UPDATE email only (Login Details page - Update Email button)
-// PATCH /api/User/Profile/:userId/Email
+// PATCH /api/User/ProfileSettings/:userId/Email
 router.patch(
-  '/Profile/:userId/Email',
+  '/ProfileSettings/:userId/Email',
   userSettingsController.updateUserEmail
 );
 
 // UPDATE password (Login Details page - Change Password button)
-// PATCH /api/User/Profile/:userId/Password
+// PATCH /api/User/ProfileSettings/:userId/Password
 router.patch(
-  '/Profile/:userId/Password',
+  '/ProfileSettings/:userId/Password',
   userSettingsController.updateUserPassword
 );
 

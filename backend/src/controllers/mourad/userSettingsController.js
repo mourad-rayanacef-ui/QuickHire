@@ -32,7 +32,7 @@ const getUserProfile = async (req, res) => {
     }
 
     // ✅ 1. Define Cache Key
-    const cacheKey = `user:profile:${userIdInt}`;
+    const cacheKey = `user:profile:settings:${userIdInt}`;
 
     // ✅ 2. Check Cache
     const cachedData = await redis.get(cacheKey);
@@ -182,7 +182,7 @@ const updateUserProfile = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
-    await redis.del(`user:profile:${userIdInt}`);
+    await redis.del(`user:profile:settings:${userIdInt}`);
 
     res.json({
       success: true,
@@ -267,7 +267,7 @@ const updateUserSocialLinks = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
-    await redis.del(`user:profile:${userIdInt}`);
+    await redis.del(`user:profile:settings:${userIdInt}`);
 
     res.json({
       success: true,
@@ -323,7 +323,7 @@ const updateUserEmail = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
-    await redis.del(`user:profile:${userIdInt}`);
+    await redis.del(`user:profile:settings:${userIdInt}`);
 
     res.json({
       success: true,
@@ -386,7 +386,7 @@ const updateUserPassword = async (req, res) => {
     });
 
     // ✅ INVALIDATE CACHE
-    await redis.del(`user:profile:${userIdInt}`);
+    await redis.del(`user:profile:settings:${userIdInt}`);
 
     res.json({
       success: true,

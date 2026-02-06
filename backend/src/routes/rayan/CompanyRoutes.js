@@ -10,37 +10,37 @@ const publicationsController = require('../../controllers/mourad/publicationsCon
 // ========================================
 
 // GET company profile (loads current data for settings page)
-// GET /api/Company/Profile/:companyId
+// GET /api/Company/ProfileSettings/:companyId
 router.get(
-  '/Profile/:companyId',
+  '/ProfileSettings/:companyId',
   companySettingsController.getCompanyProfile
 );
 
 // UPDATE company profile (Personal Information page - Save Changes button)
-// PATCH /api/Company/Profile/:companyId
+// PATCH /api/Company/ProfileSettings/:companyId
 router.patch(
-  '/Profile/:companyId',
+  '/ProfileSettings/:companyId',
   companySettingsController.updateCompanyProfile
 );
 
 // UPDATE social links (Social Links page - Save Changes button)
-// PATCH /api/Company/Profile/:companyId/SocialLinks
+// PATCH /api/Company/ProfileSettings/:companyId/SocialLinks
 router.patch(
-  '/Profile/:companyId/SocialLinks',
+  '/ProfileSettings/:companyId/SocialLinks',
   companySettingsController.updateSocialLinks
 );
 
 // UPDATE email only (Login Details page - Update Email button)
-// PATCH /api/Company/Profile/:companyId/Email
+// PATCH /api/Company/ProfileSettings/:companyId/Email
 router.patch(
-  '/Profile/:companyId/Email',
+  '/ProfileSettings/:companyId/Email',
   companySettingsController.updateCompanyEmail
 );
 
 // UPDATE password (Login Details page - Change Password button)
-// PATCH /api/Company/Profile/:companyId/Password
+// PATCH /api/Company/ProfileSettings/:companyId/Password
 router.patch(
-  '/Profile/:companyId/Password',
+  '/ProfileSettings/:companyId/Password',
   companySettingsController.updateCompanyPassword
 );
 

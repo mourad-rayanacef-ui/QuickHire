@@ -112,7 +112,7 @@ export default function PersonalInformation() {
   const { data: profileData, isLoading } = useQuery({
     queryKey: ['companyProfile', companyId],
     queryFn: async () => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/Profile/${companyId}`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
         headers: { 
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}` 
@@ -153,7 +153,7 @@ export default function PersonalInformation() {
   // --- 2. Mutation: Update Profile ---
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/Profile/${companyId}`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -57,7 +57,7 @@ function PersonalInfo() {
     queryKey: ['userProfile', userId],
     queryFn: async () => {
       if (!userId) throw new Error("No User ID found");
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/Profile/${userId}`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}`, {
         headers: { 
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}` 
@@ -90,7 +90,7 @@ function PersonalInfo() {
   // --- 2. Mutation: Update Profile ---
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/Profile/${userId}`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

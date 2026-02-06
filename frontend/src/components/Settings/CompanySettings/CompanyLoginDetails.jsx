@@ -47,7 +47,7 @@ function CompanyLoginDetails() {
   const { data: companyProfile, isLoading } = useQuery({
     queryKey: ['companyProfile', companyId],
     queryFn: async () => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/Profile/${companyId}`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
         headers: { 
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}` 
@@ -69,7 +69,7 @@ function CompanyLoginDetails() {
   // --- 2. Mutation: Update Email ---
   const emailMutation = useMutation({
     mutationFn: async (newEmail) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/Profile/${companyId}/Email`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}/Email`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ function CompanyLoginDetails() {
   // --- 3. Mutation: Update Password ---
   const passwordMutation = useMutation({
     mutationFn: async (passwordData) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/Profile/${companyId}/Password`, {
+      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}/Password`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
