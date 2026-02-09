@@ -1,26 +1,37 @@
 {
-  "name": "express-prisma-backend",
+  "name": "aquickhire-backend",
   "version": "1.0.0",
-  "description": "Express.js backend with Prisma",
+  "description": "AQuickHire - Express.js backend with Prisma",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "prisma generate && prisma migrate deploy",
+    "build": "npx prisma generate --schema=./prisma/prisma.config",  
     "dev": "nodemon server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio",
-    "prisma:reset": "prisma migrate reset",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:generate": "npx prisma generate --schema=./prisma/prisma.config", 
+    "prisma:migrate": "npx prisma migrate dev --schema=./prisma/prisma.config", 
+    "prisma:studio": "npx prisma studio",
+    "prisma:reset": "npx prisma migrate reset",
+    "prisma:deploy": "npx prisma migrate deploy --schema=./prisma/prisma.config"  
   },
-  "keywords": [],
-  "author": "",
+  "prisma": {  
+    "schema": "./prisma/prisma.config"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "express",
+    "prisma",
+    "postgresql",
+    "rest-api",
+    "backend"
+  ],
+  "author": "AQuickHire Team",
   "license": "ISC",
   "dependencies": {
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.3.0",
-    "@tanstack/react-query": "^5.90.20",
-    "@tanstack/react-query-devtools": "^5.91.2",
     "axios": "^1.13.4",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
@@ -51,8 +62,5 @@
     "@types/node-cron": "^3.0.11",
     "nodemon": "^3.0.1",
     "prisma": "^7.3.0"
-  } ,
-  "engines": {
-    "node": ">=18.0.0"
   }
-} 
+}
