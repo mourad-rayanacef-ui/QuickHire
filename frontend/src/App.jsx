@@ -3,7 +3,8 @@ import './App.css'
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from './context/AuthContext';
-
+import ForgotPassword from "./pages/login/ForgotPassword"; // ADD THIS
+import ResetPassword from "./pages/login/ResetPassword";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import UserDetailsPage from "./pages/Company/UserDetailsPage/UserDetailsPage.jsx";
 import UserMessagesPage from "./pages/User/MessagePage/MesssagePage.jsx";
@@ -51,7 +52,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/SignIn" element={<LoginSignup />} />
           <Route path="/signup" element={<MultiStepSignup />} />
-
+             <Route path="/forgot-password" element={<ForgotPassword />} /> {/* ADD THIS */}
+          <Route path="/reset-password/:token" element={<ResetPassword />} /> {/* ADD THIS */}
           {/* --------------------------- */}
           {/*   PROTECTED USER ROUTES    */}
           {/* --------------------------- */}

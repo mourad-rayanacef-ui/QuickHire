@@ -5,13 +5,15 @@ const UserRoutes = require('./UserRoutes');
 const CompanyRoutes = require('./CompanyRoutes');
 const {upload} = require('../../config/cloudinary');
 
-// Authentication routes
+// ✅ REMOVED: router.use('/auth', passwordRoutes); ← DELETE THIS LINE
+
+// Existing authentication routes
 router.post('/signIn', upload.single('image'), authController.signIn);
 router.post('/signup', upload.single('image'), authController.signUp);
 router.post('/logIn', authController.logIn);
 router.post('/logOut', authController.logOut);
 
-// ✅ Upload endpoint for manager photos and other files
+// ✅ Upload endpoint
 router.post('/upload', upload.single('Manager_Photo'), (req, res) => {
   try {
     if (!req.file) {

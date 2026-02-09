@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'https://quickhire-4d8p.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -31,7 +30,7 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('accountType');
-      window.location.href = '/login';
+      window.location.href = '/SignIn'; // Changed from '/login' to '/SignIn'
     }
     return Promise.reject(error);
   }
@@ -53,6 +52,23 @@ export const authAPI = {
     const response = await api.post('/logOut');
     return response.data;
   },
+
+  // ==================== PASSWORD RESET ENDPOINTS ====================
+ // ==================== PASSWORD RESET ENDPOINTS ====================
+forgotPassword: async (data) => {
+  const response = await api.post('/auth/forgot-password', data);
+  return response.data;
+},
+
+verifyResetToken: async (token) => {
+  const response = await api.get(`/auth/verify-reset-token/${token}`);
+  return response;  // ← Return full response, not just data
+},
+
+resetPassword: async (data) => {
+  const response = await api.post('/auth/reset-password', data);
+  return response;  // ← Return full response, not just data
+},
 };
 
 // ==================== USER API ====================
@@ -99,6 +115,16 @@ export const userAPI = {
     return response.data;
   },
 
+  acceptInvitation: async (invitationId) => {
+    const response = await api.post(`/User/Invitation/${invitationId}/accept`);
+    return response.data;
+  },
+
+  rejectInvitation: async (invitationId) => {
+    const response = await api.post(`/User/Invitation/${invitationId}/reject`);
+    return response.data;
+  },
+
   addExperience: async (experienceData) => {
     const formData = new FormData();
 
@@ -126,8 +152,6 @@ export const userAPI = {
     });
     return response.data;
   },
-
-
 
   // ==================== AMINE BACKEND - USER DASHBOARD ====================
   getDashboardStats: async () => {
@@ -170,6 +194,23 @@ export const companyAPI = {
     return response.data;
   },
 
+  addManager: async (managerData) => {
+    const formData = new FormData();
+    
+    Object.keys(managerData).forEach((key) => {
+      if (managerData[key] !== null && managerData[key] !== undefined) {
+        formData.append(key, managerData[key]);
+      }
+    });
+    
+    const response = await api.post('/Company/Manager', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
   createInvitation: async (invitationData) => {
     const response = await api.post('/Company/Invitation', invitationData);
     return response.data;
@@ -187,6 +228,15 @@ export const companyAPI = {
     return response.data;
   },
 
+  acceptApplication: async (applicationId) => {
+    const response = await api.post(`/Company/Application/${applicationId}/accept`);
+    return response.data;
+  },
+
+  rejectApplication: async (applicationId) => {
+    const response = await api.post(`/Company/Application/${applicationId}/reject`);
+    return response.data;
+  },
 
   getInvitations: async (page = 1, limit = 10) => {
     const response = await api.get('/Company/Invitations', {
@@ -204,7 +254,6 @@ export const companyAPI = {
     const response = await api.delete(`/Company/Invitation/${id}`);
     return response.data;
   },
-
 
   // ==================== AMINE BACKEND - JOB POSTING ====================
   createJob: async (jobData) => {
@@ -242,13 +291,6 @@ export const companyAPI = {
     const response = await api.post('/Company/Dashboard/RefuseUser', refuseData);
     return response.data;
   },
-
-  // Accept Applicant - adds user to In_Chat so they appear in Dashboard
-  acceptApplicant: async (applicationId) => {
-    const response = await api.post(`/Company/Dashboard/AcceptApplicant/${applicationId}`);
-    return response.data;
-  },
-
 };
 
 // ==================== CHATBOT API (AMINE BACKEND) ====================
@@ -265,7 +307,21 @@ export const chatbotAPI = {
     const response = await api.get('/Chatbot/suggestions');
     return response.data;
   },
+};
 
+// ==================== GENERAL UPLOAD API ====================
+export const uploadAPI = {
+  uploadFile: async (file) => {
+    const formData = new FormData();
+    formData.append('Manager_Photo', file);
+    
+    const response = await api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export default api;

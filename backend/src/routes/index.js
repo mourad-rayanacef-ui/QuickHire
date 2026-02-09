@@ -1,39 +1,34 @@
 const { Router } = require('express');
 const router = Router();
 
-const AyoubUserRoutes = require("./ayoub/UserRoutes.js")
-//const AyyoubUserRoutes = require("./ayyoub/UserRoutes.js")
-const RayanUserRoutes = require("./rayan/UserRoutes.js")
-const AminUserRoutes = require("./amin/UserRoutes.js")
+// IMPORT ALL ROUTES
+const passwordRoutes = require('./rayan/passwordRoutes.js');
+const AyyoubRoutes = require('./ayyoub/index.js');
+const AyoubUserRoutes = require("./ayoub/UserRoutes.js");
+const RayanUserRoutes = require("./rayan/UserRoutes.js");
+const AminUserRoutes = require("./amin/UserRoutes.js");
+const AyoubCompanyRoutes = require("./ayoub/CompanyRoutes.js");
+const RayanCompanyRoutes = require("./rayan/CompanyRoutes.js");
+const AminCompanyRoutes = require("./amin/CompanyRoutes.js");
+const AminChatbotRoutes = require("./amin/ChatbotRoutes.js");
 
-const AyyoubRoutes = require("./ayyoub/index.js")
+// ✅ PASSWORD ROUTES (ADD THIS - ONLY HERE)
+router.use('/auth', passwordRoutes);
 
-router.use("/", AyyoubRoutes);
+// ✅ AYYOUB'S MAIN ROUTES (Authentication, Upload, etc.)
+router.use('/', AyyoubRoutes);
 
-
-const AyoubCompanyRoutes = require("./ayoub/CompanyRoutes.js")
-//const AyyoubCompanyRoutes = require("./ayyoub/CompanyRoutes.js")
-const RayanCompanyRoutes = require("./rayan/CompanyRoutes.js")
-const AminCompanyRoutes = require("./amin/CompanyRoutes.js")
-
+// ✅ USER ROUTES (All developers' user routes)
 router.use("/User", AyoubUserRoutes);
-//router.use("/User", AyyoubUserRoutes); 
 router.use("/User", RayanUserRoutes);
 router.use("/User", AminUserRoutes);
 
+// ✅ COMPANY ROUTES (All developers' company routes)
 router.use("/Company", AyoubCompanyRoutes);
-//router.use("/Company",AyyoubCompanyRoutes); 
 router.use("/Company", RayanCompanyRoutes);
 router.use("/Company", AminCompanyRoutes);
 
-
-//router.use("/Logout",Logout) ; 
-//router.use("/Login",Login);
-//router.use("/SignIn",SignIn);
-
-// Chatbot routes (amine backend)
-const AminChatbotRoutes = require("./amin/ChatbotRoutes.js")
+// ✅ CHATBOT ROUTES
 router.use("/Chatbot", AminChatbotRoutes);
-
 
 module.exports = router;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './login.module.css';
 import Register from "../../assets/register.svg"
 import login from "../../assets/log.svg"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
 
 const LoginSignup = () => {
@@ -313,6 +313,23 @@ const LoginSignup = () => {
               {errors.loginPassword && (
                 <span className={styles['error-text']}>{errors.loginPassword}</span>
               )}
+              
+              {/* ADDED FORGOT PASSWORD LINK HERE */}
+              <div style={{ marginTop: '0.5rem', textAlign: 'right' }}>
+                <Link 
+                  to="/forgot-password" 
+                  style={{ 
+                    color: '#0077B5', 
+                    textDecoration: 'none', 
+                    fontSize: '0.8rem',
+                    fontWeight: '500',
+                    display: 'inline-block'
+                  }}
+                >
+                  <i className="fas fa-key" style={{ marginRight: '0.3rem' }}></i>
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
 
             <input 

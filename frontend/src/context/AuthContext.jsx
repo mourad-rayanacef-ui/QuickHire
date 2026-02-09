@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.signUp(payload);
 
       if (!response?.success) {
-        return { success: false, error: "Registration failed" };
+        return { success: false, error: response?.error || "Registration failed" };
       }
 
       const { token, accountType, image: backendImage } = response.data;
@@ -79,15 +79,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ LOGIN
+  // ✅ LOGIN - FIXED VERSION
   const logIn = async (credentials) => {
     try {
       const response = await authAPI.logIn(credentials);
 
-      if (!response?.success) {
-        return { success: false, error: "Login failed" };
+      // First check if the response itself indicates failure
+      if (response?.success === false) {
+        return { success: false, error: response.error || "Login failed" };
       }
 
+      // If we get here, response.success should be true
       const { token, accountType, image: backendImage } = response.data;
 
       const userData =
@@ -110,6 +112,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, accountType };
     } catch (error) {
       console.error("Login error:", error);
+      // Handle axios error (including 500 status)
       return {
         success: false,
         error: error.response?.data?.error || "Login failed",
