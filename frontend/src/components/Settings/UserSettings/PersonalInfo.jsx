@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "../../Alert/Alert";
+import api from "../../../api/api";
 import styles from "./PersonalInfo.module.css";
 
 // --- Helper: Auth Extraction ---
@@ -24,7 +25,7 @@ const getUserInfo = () => {
 function PersonalInfo() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
-  const { userId, token } = getUserInfo();
+  const { userId } = getUserInfo();
 
   // Alert state
   const [showAlert, setShowAlert] = useState(false);
@@ -42,7 +43,7 @@ function PersonalInfo() {
   // --- Local Form State ---
   const [formData, setFormData] = useState({
     fullName: "",
-    address: "", // ✅ Changed from Address to address
+    address: "",
     phoneNumber: "",
     email: "",
     description: "",
@@ -57,13 +58,7 @@ function PersonalInfo() {
     queryKey: ['userProfileSettings', userId],
     queryFn: async () => {
       if (!userId) throw new Error("No User ID found");
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}`, {
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` 
-        },
-      });
-      const data = await res.json();
+      const { data } = await api.get(`/User/ProfileSettings/${userId}`);
       if (!data.success) throw new Error(data.error || "Failed to fetch profile");
       return data.user;
     },
@@ -75,7 +70,7 @@ function PersonalInfo() {
     if (profileData) {
       setFormData({
         fullName: profileData.fullName || "",
-        address: profileData.address || "", // ✅ Changed to match backend field
+        address: profileData.address || "",
         phoneNumber: profileData.phoneNumber || "",
         email: profileData.email || "",
         description: profileData.description || "",
@@ -90,27 +85,19 @@ function PersonalInfo() {
   // --- 2. Mutation: Update Profile ---
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-             fullName: updatedData.fullName,
-             address: updatedData.address, // ✅ Changed to match backend field
-             phoneNumber: updatedData.phoneNumber,
-             email: updatedData.email,
-             description: updatedData.description,
-        }),
+      const { data } = await api.patch(`/User/ProfileSettings/${userId}`, {
+        fullName: updatedData.fullName,
+        address: updatedData.address,
+        phoneNumber: updatedData.phoneNumber,
+        email: updatedData.email,
+        description: updatedData.description,
       });
-      const data = await res.json();
       if (!data.success) throw new Error(data.error || "Failed to update");
       return data.user;
     },
     onSuccess: (updatedUser) => {
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-      queryClient.setQueryData(['userProfileSettings', userId] , updatedUser);
+      queryClient.setQueryData(['userProfileSettings', userId], updatedUser);
       showNotification('success', 'Profile changes saved successfully!');
     },
     onError: (err) => {
@@ -126,12 +113,9 @@ function PersonalInfo() {
       formData.append('accountType', 'user');
       formData.append('id', userId);
 
-      const res = await fetch('https://quickhire-4d8p.onrender.com/api/User/Profile/Image', {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+      const { data } = await api.patch('/User/Profile/Image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const data = await res.json();
       if (!data.success) throw new Error(data.error || "Upload failed");
       return data.data?.imageUrl;
     },
@@ -161,18 +145,15 @@ function PersonalInfo() {
       formData.append('accountType', 'user');
       formData.append('id', userId);
 
-      const res = await fetch('https://quickhire-4d8p.onrender.com/api/User/Profile/Image', {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+      const { data } = await api.patch('/User/Profile/Image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const data = await res.json();
       if (!data.success) throw new Error(data.error);
       return data;
     },
     onSuccess: () => {
       setImagePreview(null);
-        queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       queryClient.invalidateQueries({ queryKey: ['userProfileSettings', userId] });
       showNotification('success', 'Profile image removed successfully!');
     },
@@ -181,11 +162,11 @@ function PersonalInfo() {
     }
   });
 
-  // ✅ UPDATED: Validate Form (with optional fields)
+  // Validate Form (with optional fields)
   const validateForm = () => {
     const newErrors = {};
     
-    // ✅ REQUIRED FIELDS
+    // REQUIRED FIELDS
     if (!formData.fullName.trim() || formData.fullName.length < 2) {
       newErrors.fullName = "Full name must be at least 2 characters";
     }
@@ -194,7 +175,7 @@ function PersonalInfo() {
       newErrors.email = "Please enter a valid email address";
     }
     
-    // ✅ OPTIONAL FIELDS (only validate if provided)
+    // OPTIONAL FIELDS (only validate if provided)
     if (formData.address.trim() && formData.address.length < 5) {
       newErrors.address = "Address must be at least 5 characters if provided";
     }

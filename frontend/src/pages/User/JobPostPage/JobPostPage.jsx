@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import FilterObject from "../../../components/filtring/filtring";
-import Logo from "../../../../public/LOGO.svg";
-import MenuIcon from "../../../../public/sidebar.svg";
-import NotificationIcon from "../../../../public/notification.svg";
+import Logo from "../../../public/LOGO.svg";
+import MenuIcon from "../../../public/sidebar.svg";
+import NotificationIcon from "../../../public/notification.svg";
 import JobPost from "../../../components/projectcard/post";
 import Pagination from "../../../components/pagintion/Pagination";
 import SideBar from "../../../components/SideBar/SideBar";
@@ -12,8 +12,9 @@ import Search from "../../../components/searchbar/SearchBar";
 import NavBar from "../../../components/NavBar/NavBar";
 import ChatBot from "../../../components/chatbot/ChatBot";
 import Alert from "../../../components/Alert/Alert";
+import api from "../../../api/api";
 import styles from "./JobPostPage.module.css";
-import HiringPic from "../../../../public/WeAreHiring.png";
+import HiringPic from "../../../public/WeAreHiring.png";
 import "../../../index.css";
 
 // --- SKELETON COMPONENT (The Blur Effect) ---
@@ -87,30 +88,17 @@ function JobPage() {
   const currentUserId = getUserId();
 
   const fetchJobs = async (page) => {
-    const token = localStorage.getItem("token");
-
     // Get applied jobs from localStorage
     const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
 
-    const params = new URLSearchParams({
-      page: page,
-      limit: jobsPerPage,
+    const { data } = await api.get('/User/Jobs', {
+      params: {
+        page: page,
+        limit: jobsPerPage,
+        search: query,
+        userId: currentUserId
+      }
     });
-
-    if (query) params.append('search', query);
-    if (currentUserId) params.append('userId', currentUserId);
-
-    const url = `https://quickhire-4d8p.onrender.com/api/User/Jobs?${params.toString()}`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    });
-
-    const data = await response.json();
 
     if (data.success) {
       // Filter out already applied jobs

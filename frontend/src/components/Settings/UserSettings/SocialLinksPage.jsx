@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "../../Alert/Alert"; // ✅ Import Alert component
+import Alert from "../../Alert/Alert";
+import api from "../../../api/api";
 import styles from './SocialLinksPage.module.css';
 import { Linkedin, Mail, Globe } from "lucide-react";
 
@@ -24,7 +25,7 @@ const getUserInfo = () => {
 
 function SocialLinksPage() {
     const queryClient = useQueryClient();
-    const { userId, token } = getUserInfo();
+    const { userId } = getUserInfo();
     const [errors, setErrors] = useState({});
 
     // Local state to manage inputs (controlled inputs are better for async data)
@@ -34,11 +35,11 @@ function SocialLinksPage() {
         website: ""
     });
 
-    // ✅ Alert state
+    // Alert state
     const [showAlert, setShowAlert] = useState(false);
     const [alertConfig, setAlertConfig] = useState({ type: 'success', message: '' });
 
-    // ✅ Helper function to show alerts
+    // Helper function to show alerts
     const showNotification = (message, type = 'success') => {
         setAlertConfig({ type, message });
         setShowAlert(true);
@@ -48,13 +49,7 @@ function SocialLinksPage() {
     const { data: profileData, isLoading } = useQuery({
         queryKey: ['userProfileSettings', userId],
         queryFn: async () => {
-            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}`, {
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}` 
-                },
-            });
-            const data = await res.json();
+            const { data } = await api.get(`/User/ProfileSettings/${userId}`);
             if (!data.success) throw new Error("Failed to load profile");
             return data.user;
         },
@@ -75,25 +70,17 @@ function SocialLinksPage() {
     // --- 2. Mutation: Save Links ---
     const updateLinksMutation = useMutation({
         mutationFn: async (newLinks) => {
-            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/User/ProfileSettings/${userId}/SocialLinks`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(newLinks),
-            });
-            const data = await res.json();
+            const { data } = await api.patch(`/User/ProfileSettings/${userId}/SocialLinks`, newLinks);
             if (!data.success) throw new Error(data.error || "Failed to update links");
             return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['userProfileSettings', userId] });
             queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-            showNotification("Links updated successfully!", "success"); // ✅ New alert
+            showNotification("Links updated successfully!", "success");
         },
         onError: (err) => {
-            showNotification(err.message, "error"); // ✅ New alert
+            showNotification(err.message, "error");
         }
     });
 
@@ -124,7 +111,7 @@ function SocialLinksPage() {
         if (validate()) {
             updateLinksMutation.mutate(links);
         } else {
-            showNotification("Please fix the validation errors", "warning"); // ✅ New alert
+            showNotification("Please fix the validation errors", "warning");
         }
     };
 
@@ -152,7 +139,7 @@ function SocialLinksPage() {
 
     return (
         <div className={styles.container}>
-            {/* ✅ Alert Component */}
+            {/* Alert Component */}
             {showAlert && (
                 <Alert
                     type={alertConfig.type}
