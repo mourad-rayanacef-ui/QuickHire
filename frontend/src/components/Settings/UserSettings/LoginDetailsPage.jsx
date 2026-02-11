@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "../../Alert/Alert";
-import api from "../../../api/api";
+import api from "../../../services/api";
 import styles from "./LoginDetailsPage.module.css";
 
 // --- Helper: Auth Extraction ---
