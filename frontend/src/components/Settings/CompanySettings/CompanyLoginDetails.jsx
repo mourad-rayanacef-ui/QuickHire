@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import Alert from "../../Alert/Alert"; // ✅ Import Alert component
+import Alert from "../../Alert/Alert";
+import api from "../../../services/api";
 import styles from "./CompanyLoginDetails.module.css"; 
 
 // --- Helper: Auth Extraction ---
@@ -23,7 +24,7 @@ const getCompanyInfo = () => {
 
 function CompanyLoginDetails() {
   const queryClient = useQueryClient();
-  const { companyId, token } = getCompanyInfo();
+  const { companyId } = getCompanyInfo();
 
   const emailRef = useRef(null);
   const oldPassRef = useRef(null);
@@ -33,11 +34,11 @@ function CompanyLoginDetails() {
   const [email, setEmail] = useState("");
   const [passError, setPassError] = useState("");
 
-  // ✅ Alert state
+  // Alert state
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ type: 'success', message: '' });
 
-  // ✅ Helper function to show alerts
+  // Helper function to show alerts
   const showNotification = (message, type = 'success') => {
     setAlertConfig({ type, message });
     setShowAlert(true);
@@ -47,13 +48,7 @@ function CompanyLoginDetails() {
   const { data: companyProfile, isLoading } = useQuery({
     queryKey: ['companyProfileSettings', companyId],
     queryFn: async () => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` 
-        },
-      });
-      const data = await res.json();
+      const { data } = await api.get(`/Company/ProfileSettings/${companyId}`);
       if (!data.success) throw new Error("Failed to load profile");
       return data.company;
     },
@@ -69,15 +64,9 @@ function CompanyLoginDetails() {
   // --- 2. Mutation: Update Email ---
   const emailMutation = useMutation({
     mutationFn: async (newEmail) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}/Email`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email: newEmail }),
+      const { data } = await api.patch(`/Company/ProfileSettings/${companyId}/Email`, {
+        email: newEmail
       });
-      const data = await res.json();
       if (!data.success) throw new Error(data.error || "Failed to update email");
       return newEmail;
     },
@@ -86,28 +75,20 @@ function CompanyLoginDetails() {
       queryClient.setQueryData(['companyProfileSettings', companyId], (old) => ({ ...old, email: newEmail }));
       queryClient.invalidateQueries({ queryKey: ['companyProfile'] });
       if(emailRef.current) emailRef.current.value = "";
-      showNotification("Email updated successfully!", "success"); // ✅ New alert
+      showNotification("Email updated successfully!", "success");
     },
-    onError: (err) => showNotification(err.message, "error") // ✅ New alert
+    onError: (err) => showNotification(err.message, "error")
   });
 
   // --- 3. Mutation: Update Password ---
   const passwordMutation = useMutation({
     mutationFn: async (passwordData) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}/Password`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(passwordData),
-      });
-      const data = await res.json();
+      const { data } = await api.patch(`/Company/ProfileSettings/${companyId}/Password`, passwordData);
       if (!data.success) throw new Error(data.error || "Failed to update password");
       return data;
     },
     onSuccess: () => {
-      showNotification("Password updated successfully!", "success"); // ✅ New alert
+      showNotification("Password updated successfully!", "success");
       if(oldPassRef.current) oldPassRef.current.value = "";
       if(newPassRef.current) newPassRef.current.value = "";
       if(confirmPassRef.current) confirmPassRef.current.value = "";
@@ -115,7 +96,7 @@ function CompanyLoginDetails() {
     },
     onError: (err) => {
       setPassError(err.message);
-      showNotification(err.message, "error"); // ✅ New alert
+      showNotification(err.message, "error");
     }
   });
 
@@ -125,10 +106,10 @@ function CompanyLoginDetails() {
     const newEmail = emailRef.current.value.trim();
     
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-      return showNotification("Invalid email format", "error"); // ✅ New alert
+      return showNotification("Invalid email format", "error");
     }
     if (newEmail === email) {
-      return showNotification("This is already your current email", "warning"); // ✅ New alert
+      return showNotification("This is already your current email", "warning");
     }
 
     emailMutation.mutate(newEmail);
@@ -143,23 +124,23 @@ function CompanyLoginDetails() {
     setPassError("");
     if (!oldPass || !newPass || !confirmPass) {
       setPassError("All fields are required");
-      return showNotification("All fields are required", "error"); // ✅ New alert
+      return showNotification("All fields are required", "error");
     }
     if (newPass !== confirmPass) {
       setPassError("New passwords do not match");
-      return showNotification("New passwords do not match", "error"); // ✅ New alert
+      return showNotification("New passwords do not match", "error");
     }
     if (newPass === oldPass) {
       setPassError("New password cannot be the same as old");
-      return showNotification("New password cannot be the same as old", "warning"); // ✅ New alert
+      return showNotification("New password cannot be the same as old", "warning");
     }
     if (newPass.length < 8) {
       setPassError("Password must be at least 8 characters");
-      return showNotification("Password must be at least 8 characters", "warning"); // ✅ New alert
+      return showNotification("Password must be at least 8 characters", "warning");
     }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(newPass)) {
       setPassError("Password must contain uppercase, lowercase, and number");
-      return showNotification("Password must contain uppercase, lowercase, and number", "warning"); // ✅ New alert
+      return showNotification("Password must contain uppercase, lowercase, and number", "warning");
     }
 
     passwordMutation.mutate({ oldPassword: oldPass, newPassword: newPass, confirmPassword: confirmPass });
@@ -195,7 +176,7 @@ function CompanyLoginDetails() {
 
   return (
     <div className={styles.container}>
-      {/* ✅ Alert Component */}
+      {/* Alert Component */}
       {showAlert && (
         <Alert
           type={alertConfig.type}

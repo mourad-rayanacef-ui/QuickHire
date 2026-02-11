@@ -9,6 +9,7 @@ import SideBarCompany from "../../../components/SideBar/SideBarCompany";
 import Search from "../../../components/searchbar/SearchBar";
 import Navbarcompany from "../../../components/navbarcompany/navbarcompany.jsx";
 import Alert from "../../../components/Alert/Alert";
+import api from "../../../services/api.js";
 import Logo from "../../../../public/LOGO.svg";
 import MenuIcon from "../../../../public/sidebar.svg";
 import NotificationIcon from "../../../../public/notification.svg";
@@ -82,7 +83,6 @@ function CandidatePage() {
   const currentCompanyId = getCompanyId();
 
   const fetchCandidates = async (page) => {
-    const token = localStorage.getItem("token");
     const companyId = currentCompanyId;
 
     if (!companyId) {
@@ -90,26 +90,15 @@ function CandidatePage() {
       throw new Error('Please log in as a company to view candidates');
     }
 
-    const params = new URLSearchParams({
-      page: page,
-      limit: candidatesPerPage,
-      status: 'JobSeeker',
-      companyId: companyId,
+    const { data } = await api.get('/Company/Users', {
+      params: {
+        page: page,
+        limit: candidatesPerPage,
+        status: 'JobSeeker',
+        companyId: companyId,
+        search: query
+      }
     });
-
-    if (query) params.append('search', query);
-
-    const url = `https://quickhire-4d8p.onrender.com/api/Company/Users?${params.toString()}`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    });
-
-    const data = await response.json();
 
     if (data.success) {
       const invitedCandidates = JSON.parse(localStorage.getItem('invitedCandidates') || '[]');
@@ -282,7 +271,6 @@ function CandidatePage() {
   };
 
   const handleCandidateInvite = useCallback((candidateId, candidateName) => {
-
 
     const invitedCandidates = JSON.parse(localStorage.getItem('invitedCandidates') || '[]');
     if (!invitedCandidates.includes(candidateId)) {

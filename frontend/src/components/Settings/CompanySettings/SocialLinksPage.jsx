@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "../../Alert/Alert";
+import api from "../../../services/api";
 import styles from './SocialLinksPage.module.css';
 import { Linkedin, Mail } from "lucide-react";
 
@@ -24,7 +25,7 @@ const getCompanyInfo = () => {
 
 function SocialLinksPage() {
     const queryClient = useQueryClient();
-    const { companyId, token } = getCompanyInfo();
+    const { companyId } = getCompanyInfo();
     const [links, setLinks] = useState({ linkedin: "", email: "" });
     const [errors, setErrors] = useState({});
 
@@ -42,13 +43,7 @@ function SocialLinksPage() {
     const { data: profileData, isLoading } = useQuery({
         queryKey: ['companyProfileSettings', companyId],
         queryFn: async () => {
-            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}` 
-                },
-            });
-            const data = await res.json();
+            const { data } = await api.get(`/Company/ProfileSettings/${companyId}`);
             if (!data.success) throw new Error("Failed to load profile");
             return data.company;
         },
@@ -67,15 +62,7 @@ function SocialLinksPage() {
     // --- 2. Mutation: Save Links ---
     const updateLinksMutation = useMutation({
         mutationFn: async (newLinks) => {
-            const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}/SocialLinks`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(newLinks),
-            });
-            const data = await res.json();
+            const { data } = await api.patch(`/Company/ProfileSettings/${companyId}/SocialLinks`, newLinks);
             if (!data.success) throw new Error(data.error || "Failed to update links");
             return data;
         },
@@ -97,7 +84,7 @@ function SocialLinksPage() {
         }
     };
 
-    // ✅ CLEANED: Validation for optional fields
+    // Validation for optional fields
     const handleSave = (e) => {
         e.preventDefault();
         const newErrors = {};
@@ -157,7 +144,7 @@ function SocialLinksPage() {
 
     return (
         <div className={styles.container}>
-            {/* ✅ Alert Component */}
+            {/* Alert Component */}
             {showAlert && (
                 <Alert
                 type={alertConfig.type}

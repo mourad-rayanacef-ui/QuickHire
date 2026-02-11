@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "../../Alert/Alert";
+import api from "../../../services/api";
 import styles from './PersonalInformation.module.css';
 
 // --- CONSTANTS (Move these to the top) ---
@@ -26,10 +27,10 @@ const isValidDate = (day, month, year) => {
 };
 
 const getDaysForMonth = (month, year) => {
-  if (!month || !year) return days; // Use the global days array
+  if (!month || !year) return days;
   
   const monthIndex = months.findIndex(m => m === month);
-  if (monthIndex === -1) return days; // Use the global days array
+  if (monthIndex === -1) return days;
   
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   return Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
@@ -55,7 +56,7 @@ const getCompanyInfo = () => {
 
 export default function PersonalInformation() {
   const queryClient = useQueryClient();
-  const { companyId, token } = getCompanyInfo();
+  const { companyId } = getCompanyInfo();
   const fileInputRef = useRef(null);
 
   // --- Local State ---
@@ -87,7 +88,7 @@ export default function PersonalInformation() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ type: 'success', message: '' });
 
-  // ✅ FIXED: Update available days when month or year changes
+  // Update available days when month or year changes
   useEffect(() => {
     if (dateFounded.month && dateFounded.year) {
       const daysForMonth = getDaysForMonth(dateFounded.month, dateFounded.year);
@@ -112,13 +113,7 @@ export default function PersonalInformation() {
   const { data: profileData, isLoading } = useQuery({
     queryKey: ['companyProfileSettings', companyId],
     queryFn: async () => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` 
-        },
-      });
-      const data = await res.json();
+      const { data } = await api.get(`/Company/ProfileSettings/${companyId}`);
       if (!data.success) throw new Error("Failed to load company profile");
       return data.company;
     },
@@ -153,15 +148,7 @@ export default function PersonalInformation() {
   // --- 2. Mutation: Update Profile ---
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const res = await fetch(`https://quickhire-4d8p.onrender.com/api/Company/ProfileSettings/${companyId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
-      const data = await res.json();
+      const { data } = await api.patch(`/Company/ProfileSettings/${companyId}`, updatedData);
       if (!data.success) throw new Error(data.error || "Failed to save changes");
       return data;
     },
@@ -181,12 +168,9 @@ export default function PersonalInformation() {
       formData.append('accountType', 'company');
       formData.append('id', companyId);
 
-      const res = await fetch('https://quickhire-4d8p.onrender.com/api/Company/Profile/Image', {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+      const { data } = await api.patch('/Company/Profile/Image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const data = await res.json();
       if (!data.success) throw new Error(data.error || "Upload failed");
       return data.data?.imageUrl;
     },
@@ -212,12 +196,9 @@ export default function PersonalInformation() {
         formData.append('accountType', 'company');
         formData.append('id', companyId);
 
-        const res = await fetch('https://quickhire-4d8p.onrender.com/api/Company/Profile/Image', {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
+        const { data } = await api.patch('/Company/Profile/Image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
-        const data = await res.json();
         if (!data.success) throw new Error(data.error);
         return data;
     },
@@ -228,7 +209,7 @@ export default function PersonalInformation() {
     onError: (err) => showNotification(`Error: ${err.message}`, "error")
   });
 
-  // ✅ UPDATED: Validate Form
+  // Validate Form
   const validateForm = () => {
     const newErrors = {};
     
