@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import FilterObject from "../../../components/filtring/filtring";
-import Logo from "../../../public/LOGO.svg";
+import Logo from "../../../../public/LOGO.svg";
 import MenuIcon from "../../../public/sidebar.svg";
 import NotificationIcon from "../../../public/notification.svg";
 import JobPost from "../../../components/projectcard/post";
