@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const api = axios.create({
@@ -6,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 60000, // ← 60 seconds timeout for Render wake-up
 });
 
 // Request interceptor - adds token to every request
@@ -22,16 +24,55 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - handles 401 errors
+// Response interceptor - handles errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle timeout errors (Render wake-up)
+    if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+      console.error('⏱️ Request timeout - backend might be waking up from sleep');
+      return Promise.reject({
+        response: {
+          data: {
+            error: 'Server is waking up, please wait a moment and try again...',
+            status: 'timeout'
+          }
+        }
+      });
+    }
+
+    // Handle network errors
+    if (error.message === 'Network Error') {
+      console.error('🌐 Network error - check your connection or backend status');
+      return Promise.reject({
+        response: {
+          data: {
+            error: 'Unable to connect to server. Please check your internet connection.',
+            status: 'network_error'
+          }
+        }
+      });
+    }
+
+    // Handle 404 errors
+    if (error.response?.status === 404) {
+      console.error('❌ 404 - Endpoint not found or backend is not running');
+    }
+
+    // Handle 401 errors (unauthorized)
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('accountType');
-      window.location.href = '/SignIn'; // Changed from '/login' to '/SignIn'
+      localStorage.removeItem('Image');
+      window.location.href = '/SignIn';
     }
+
+    // Handle 500 errors
+    if (error.response?.status === 500) {
+      console.error('💥 Server error - backend crashed');
+    }
+
     return Promise.reject(error);
   }
 );
@@ -54,21 +95,20 @@ export const authAPI = {
   },
 
   // ==================== PASSWORD RESET ENDPOINTS ====================
- // ==================== PASSWORD RESET ENDPOINTS ====================
-forgotPassword: async (data) => {
-  const response = await api.post('/auth/forgot-password', data);
-  return response.data;
-},
+  forgotPassword: async (data) => {
+    const response = await api.post('/auth/forgot-password', data);
+    return response.data;
+  },
 
-verifyResetToken: async (token) => {
-  const response = await api.get(`/auth/verify-reset-token/${token}`);
-  return response;  // ← Return full response, not just data
-},
+  verifyResetToken: async (token) => {
+    const response = await api.get(`/auth/verify-reset-token/${token}`);
+    return response;
+  },
 
-resetPassword: async (data) => {
-  const response = await api.post('/auth/reset-password', data);
-  return response;  // ← Return full response, not just data
-},
+  resetPassword: async (data) => {
+    const response = await api.post('/auth/reset-password', data);
+    return response;
+  },
 };
 
 // ==================== USER API ====================
@@ -153,7 +193,6 @@ export const userAPI = {
     return response.data;
   },
 
-  // ==================== AMINE BACKEND - USER DASHBOARD ====================
   getDashboardStats: async () => {
     const response = await api.get('/User/Dashboard');
     return response.data;
@@ -255,13 +294,11 @@ export const companyAPI = {
     return response.data;
   },
 
-  // ==================== AMINE BACKEND - JOB POSTING ====================
   createJob: async (jobData) => {
     const response = await api.post('/Company/PostJob', jobData);
     return response.data;
   },
 
-  // ==================== AMINE BACKEND - COMPANY DASHBOARD ====================
   getDashboardStats: async () => {
     const response = await api.get('/Company/Dashboard');
     return response.data;
@@ -293,7 +330,7 @@ export const companyAPI = {
   },
 };
 
-// ==================== CHATBOT API (AMINE BACKEND) ====================
+// ==================== CHATBOT API ====================
 export const chatbotAPI = {
   sendMessage: async (message, conversationHistory = []) => {
     const response = await api.post('/Chatbot/message', {
