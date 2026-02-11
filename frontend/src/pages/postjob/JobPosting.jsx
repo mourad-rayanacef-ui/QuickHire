@@ -5,8 +5,8 @@ import Navbarcompany from '../../components/navbarcompany/navbarcompany.jsx';
 import SideBarCompany from '../../components/SideBar/SideBarCompany.jsx';
 import { companyAPI } from '../../services/api';
 
-import bagIcon from '../../assets/bag.svg';
-import paperIcon from '../../assets/paper.svg';
+import bagIcon from '../../../public/bag.svg';
+import paperIcon from '../../../public/paper.svg';
 import JobSuccessPopup from '../../components/popups/JobSuccessPopup.jsx';
 
 const JobPosting = () => {

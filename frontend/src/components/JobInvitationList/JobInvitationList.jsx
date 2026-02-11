@@ -1,7 +1,7 @@
 import React from 'react';
 import JobInvitation from "./JobInvitation/JobInvitation.jsx";
 import styles from './JobInvitationList.module.css';
-import defaultLogo from '../../assets/company-logo.svg'; // ✅ Only one default logo
+import defaultLogo from '../../../public/company-logo.svg'; // ✅ Only one default logo
 
 function JobInvitationList({ invitations = [], onAccept }) {
   // If no invitations are passed, show a message

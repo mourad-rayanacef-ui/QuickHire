@@ -1,10 +1,10 @@
 // UserMessages.jsx - Fixed Version with Proper Initial Message Loading
 import styles from "./UserMessages.module.css"
 import Profiles from "../../components/Profiles/Profiles"
-import ProfileImg from "../../assets/UserProfileImg.webp"
-import search from "../../assets/search.svg"
-import settings from "../../assets/Settings.svg"
-import sendButton from "../../assets/send.svg"
+import ProfileImg from "../../../public/UserProfileImg.webp"
+import search from "../../../public/search.svg"
+import settings from "../../../public/Settings.svg"
+import sendButton from "../../../public/send.svg"
 
 import Message from "../../components/Message/Message.jsx"
 

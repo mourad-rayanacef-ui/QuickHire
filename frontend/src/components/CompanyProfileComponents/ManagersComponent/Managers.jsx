@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './Managers.module.css';
-import ManagerImg from '../../../assets/me.jpg';
+import ManagerImg from '../../../../public/me.jpg';
 import { ChevronLeft, ChevronRight, Mail, Linkedin } from 'lucide-react';
 
 const TeamCarousel = ({ CompanyInfo }) => {

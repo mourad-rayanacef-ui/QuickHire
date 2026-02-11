@@ -1,8 +1,8 @@
 import styles from "./UserProfileHeroSection.module.css";
-import ProfileImg from "../../assets/UserProfileImg.webp";
-import locationLogo from "../../assets/location.svg";
-import FlagLog from "../../assets/Flagsvg.svg";
-import Flag2Log from "../../assets/Flag2svg.svg";
+import ProfileImg from "../../../public/UserProfileImg.webp";
+import locationLogo from "../../../public/location.svg";
+import FlagLog from "../../../public/Flagsvg.svg";
+import Flag2Log from "../../../public/Flag2svg.svg";
 import { useNavigate } from 'react-router-dom';
 
 const UserProfileHeroSection = ({ UserInfo, isLoading }) => {

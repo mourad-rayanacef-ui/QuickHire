@@ -1,6 +1,6 @@
 import styles from "./ProfileHeader.module.css";
-import ProfileImg from "../../../assets/company.svg";
-import FlagLog from "../../../assets/Flagsvg.svg";
+import ProfileImg from "../../../../public/company.svg";
+import FlagLog from "../../../../public/Flagsvg.svg";
 
 const ProfileHeader = ({ CompanyInfo, isLoading }) => {
   // --- LOADING STATE (Line-by-Line Shimmer) ---

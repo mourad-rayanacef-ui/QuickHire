@@ -1,12 +1,12 @@
 import styles from "../SideBar/SideBar.module.css";
-import AccountImg from "../../assets/company.svg";
-import Home from "../../assets/Home.svg";
-import Message from "../../assets/Message.svg";
-import Appplications from "../../assets/MyApplications.svg";
-import Publications from "../../assets/Publications.svg";
-import Profile from "../../assets/Profile.svg";
-import Settings from "../../assets/Settings.svg";
-import Logout from "../../assets/Logout.svg";
+import AccountImg from "../../../public/company.svg";
+import Home from "../../../public/Home.svg";
+import Message from "../../../public/Message.svg";
+import Appplications from "../../../public/MyApplications.svg";
+import Publications from "../../../public/Publications.svg";
+import Profile from "../../../public/Profile.svg";
+import Settings from "../../../public/Settings.svg";
+import Logout from "../../../public/Logout.svg";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'; // Add useLocation
 import { useAuth } from '../../context/AuthContext';

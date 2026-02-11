@@ -8,7 +8,7 @@ import ProfileHeader from "../../components/CompanyProfileComponents/ProfileHead
 import TeamCarousel from "../../components/CompanyProfileComponents/ManagersComponent/Managers.jsx";
 import AddManagerPopUp from "../../components/AddManagerPopUp/AddManagerPopUp.jsx";
 import Alert from "../../components/Alert/Alert"; // ✅ Import Alert component
-import CompanyProfileIllustration from "../../assets/CompanyProfileIllustration.svg";
+import CompanyProfileIllustration from "../../../public/CompanyProfileIllustration.svg";
 
 const CompanyProfile = () => {
   const { user } = useAuth();

@@ -1,6 +1,6 @@
 import styles from "./NavbarCompany.module.css";
-import logo from "../../assets/LOGO.svg";
-import Notification from "../../assets/notification.svg"
+import logo from "../../../public/LOGO.svg";
+import Notification from "../../../public/notification.svg"
 import { useNavigate } from 'react-router-dom'
 
 const Navbarcompany = () => {

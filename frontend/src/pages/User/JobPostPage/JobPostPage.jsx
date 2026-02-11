@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import FilterObject from "../../../components/filtring/filtring";
-import Logo from "../../../assets/LOGO.svg";
-import MenuIcon from "../../../assets/sidebar.svg";
-import NotificationIcon from "../../../assets/notification.svg";
+import Logo from "../../../../public/LOGO.svg";
+import MenuIcon from "../../../../public/sidebar.svg";
+import NotificationIcon from "../../../../public/notification.svg";
 import JobPost from "../../../components/projectcard/post";
 import Pagination from "../../../components/pagintion/Pagination";
 import SideBar from "../../../components/SideBar/SideBar";
@@ -13,7 +13,7 @@ import NavBar from "../../../components/NavBar/NavBar";
 import ChatBot from "../../../components/chatbot/ChatBot";
 import Alert from "../../../components/Alert/Alert";
 import styles from "./JobPostPage.module.css";
-import HiringPic from "../../../assets/WeAreHiring.png";
+import HiringPic from "../../../../public/WeAreHiring.png";
 import "../../../index.css";
 
 // --- SKELETON COMPONENT (The Blur Effect) ---

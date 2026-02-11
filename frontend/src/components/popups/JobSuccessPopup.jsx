@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './JobSuccessPopup.module.css';
 import { useNavigate } from 'react-router-dom';
 
-import Checkmark from '../../assets/Checkmark.svg'
+import Checkmark from '../../../public/Checkmark.svg'
 
 const JobSuccessPopup = ({ 
   isVisible, 

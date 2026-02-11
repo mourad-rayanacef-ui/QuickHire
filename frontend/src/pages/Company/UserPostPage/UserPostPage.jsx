@@ -9,11 +9,11 @@ import SideBarCompany from "../../../components/SideBar/SideBarCompany";
 import Search from "../../../components/searchbar/SearchBar";
 import Navbarcompany from "../../../components/navbarcompany/navbarcompany.jsx";
 import Alert from "../../../components/Alert/Alert";
-import Logo from "../../../assets/LOGO.svg";
-import MenuIcon from "../../../assets/sidebar.svg";
-import NotificationIcon from "../../../assets/notification.svg";
+import Logo from "../../../../public/LOGO.svg";
+import MenuIcon from "../../../../public/sidebar.svg";
+import NotificationIcon from "../../../../public/notification.svg";
 import styles from "./UserPostPage.module.css";
-import HiringPic from "../../../assets/WeAreHiring.png";
+import HiringPic from "../../../../public/WeAreHiring.png";
 import "../../../index.css";
 
 // --- SKELETON COMPONENT ---

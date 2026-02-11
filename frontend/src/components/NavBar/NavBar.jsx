@@ -1,7 +1,7 @@
 import styles from "./NavBar.module.css";
-import logo from "../../assets/LOGO.svg";
+import logo from "../../../public/LOGO.svg";
 
-import Notification from "../../assets/notification.svg"
+import Notification from "../../../public/notification.svg"
 import { useNavigate } from 'react-router-dom'
 
 const NavBar = () => {

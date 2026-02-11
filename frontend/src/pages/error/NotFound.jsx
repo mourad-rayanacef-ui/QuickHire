@@ -1,8 +1,8 @@
 import React from 'react';
 import styles from './NotFound.module.css'; 
 import Footer from '../../components/footer/Footer.jsx';
-import LOGO from '../../assets/LOGO.svg'; 
-import robotImage from '../../assets/illustration.svg'; 
+import LOGO from '../../../public/LOGO.svg'; 
+import robotImage from '../../../public/illustration.svg'; 
 
 import { useNavigate } from 'react-router-dom';
 

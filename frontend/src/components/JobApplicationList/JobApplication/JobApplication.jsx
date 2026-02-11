@@ -1,6 +1,6 @@
 import React from "react";
-import companyLogo from '../../../assets/company-logo.svg';
-import Vector from '../../../assets/Vector.svg';
+import companyLogo from '../../../../public/company-logo.svg';
+import Vector from '../../../../public/Vector.svg';
 import styles from "./JobApplication.module.css"
 
 function JobApplication({ application }) {

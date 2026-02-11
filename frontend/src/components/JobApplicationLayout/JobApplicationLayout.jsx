@@ -3,7 +3,7 @@ import JobApplicationsList from "../JobApplicationList/JobApplicationList.jsx";
 import JobInvitationList from "../JobInvitationList/JobInvitationList.jsx";
 import SuccessPopup from '../UAcceptation/UAcceptationPop.jsx';
 import styles from './JobApplicationLayout.module.css';
-import jobseek from '../../assets/jobseek.svg';
+import jobseek from '../../../public/jobseek.svg';
 import { userAPI } from '../../services/api';
 
 function JobApplicationLayout() {

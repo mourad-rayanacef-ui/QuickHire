@@ -1,7 +1,7 @@
 import React from 'react';
 import JobApplication from "./JobApplication/JobApplication.jsx";
 import styles from './JobApplicationList.module.css';
-import defaultLogo from '../../assets/company-logo.svg'; // ✅ Only one default logo
+import defaultLogo from '../../../public/company-logo.svg'; // ✅ Only one default logo
 
 function JobApplicationsList({ applications = [] }) {
   // If no applications are passed, show a message

@@ -1,7 +1,7 @@
 import React from 'react';
 import CApplication from "../CApplications/CApplications.jsx";
 import styles from './CApplicationList.module.css';
-import defaultAvatar from '../../../assets/applicantss/applicant1.svg'; // ✅ Only one default
+import defaultAvatar from '../../../../public/applicantss/applicant1.svg'; // ✅ Only one default
 
 function CApplicationsList({ applicants = [], onDelete, onAccept, onStatusChange }) {
   console.log('CApplicationsList received applicants:', applicants);

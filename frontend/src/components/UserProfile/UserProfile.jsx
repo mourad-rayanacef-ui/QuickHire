@@ -7,8 +7,8 @@ import AdditionalContainer from "../../components/UserProfileAdditionalContainer
 import styles from "./UserProfile.module.css";
 import UserProfileSocialLinks from "../../components/UserProfileSocialLinks/UserProfileSocialLinks.jsx";
 import Experience from "../../components/UserProfileComponents/Experience/Experience.jsx";
-import companyLogo from "../../assets/CompanyLogo.png";
-import wrongLogo from "../../assets/wrong.svg";
+import companyLogo from "../../../public/CompanyLogo.png";
+import wrongLogo from "../../../public/wrong.svg";
 
 import AddSkillPopUp from "../../components/AddSkillPopUp/AddSkillPopUp.jsx";
 import AddExperiencePopUp from "../../components/AddExperiencePopUp/AddExperiencePopUp.jsx";

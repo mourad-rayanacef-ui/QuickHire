@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from './login.module.css';
-import Register from "../../assets/register.svg"
-import login from "../../assets/log.svg"
+import Register from "../../../public/register.svg"
+import login from "../../../public/log.svg"
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
 

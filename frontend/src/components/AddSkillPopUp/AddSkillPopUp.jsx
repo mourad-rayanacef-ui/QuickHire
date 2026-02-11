@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "../../components/AddSkillPopUp/AddSkillPopUp.module.css";
-import wrongLogo from "../../assets/wrong.svg";
+import wrongLogo from "../../../public/wrong.svg";
 import Alert from "../Alert/Alert"; // ✅ Import Alert component
 
 const AddSkillPopUp = ({ handlingAdding, className, onClose }) => {

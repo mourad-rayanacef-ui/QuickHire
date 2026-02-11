@@ -1,7 +1,7 @@
 import styles from "./AdditionalCotainer.module.css"
-import emailLogo from "../../assets/email.svg"
-import phoneLogo from "../../assets/phone.svg"
-import LanguageLogo from "../../assets/language.svg"
+import emailLogo from "../../../public/email.svg"
+import phoneLogo from "../../../public/phone.svg"
+import LanguageLogo from "../../../public/language.svg"
 
 const AdditionalContainer = ({ UserInfo }) => {
   // Debug logging

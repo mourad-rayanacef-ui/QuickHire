@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./CInvitation.module.css"; 
-import Vector from "../../../assets/Vector.svg"
-import TrashIcon from "../../../assets/delete-button.svg"
+import Vector from "../../../../public/Vector.svg"
+import TrashIcon from "../../../../public/delete-button.svg"
 
 function CInvitation({ applicant, onDelete }) {
     const handleDelete = () => {

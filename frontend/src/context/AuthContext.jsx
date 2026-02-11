@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import { authAPI } from "../services/api";
 
-import defaultImg from "../assets/LOGO.svg";
+import defaultImg from "../../public/LOGO.svg";
 
 const AuthContext = createContext(null);
 

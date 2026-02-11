@@ -1,7 +1,7 @@
 import styles from "./UserProfileSocialLinks.module.css"
-import emailLogo from "../../assets/email.svg"
-import LinkedInLogo from "../../assets/phone.svg" // Kept your import path
-import WebsiteImg from "../../assets/website.svg"
+import emailLogo from "../../../public/email.svg"
+import LinkedInLogo from "../../../public/phone.svg" // Kept your import path
+import WebsiteImg from "../../../public/website.svg"
 
 const UserProfileSocialLinks = ({ UserInfo }) => {
   // Provide default values if UserInfo is not loaded yet

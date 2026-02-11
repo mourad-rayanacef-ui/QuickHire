@@ -1,7 +1,7 @@
 import React from 'react';
 import CInvitation from "../CInvitations/CInvitation.jsx";
 import styles from './CInvitationList.module.css';
-import defaultAvatar from '../../../assets/applicantss/applicant1.svg'; // ✅ Only one default
+import defaultAvatar from '../../../../public/applicantss/applicant1.svg'; // ✅ Only one default
 
 function CInvitationList({ applicants = [], onDelete }) {
   if (!applicants || applicants.length === 0) {

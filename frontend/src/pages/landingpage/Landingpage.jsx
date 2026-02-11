@@ -1,7 +1,7 @@
 import React from 'react';
 import Footer from '../../components/footer/Footer.jsx';
 import styles from './Landingpage.module.css';
-import work from '../../assets/work.svg';
+import work from '../../../public/work.svg';
  import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
