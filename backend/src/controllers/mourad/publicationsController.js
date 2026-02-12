@@ -958,14 +958,24 @@ const inviteUser = async (req, res) => {
       : `${companyExists.Name} has sent you an invitation`;
 
     // Create notification in User_Notifications_History table
-    const userNotification = await prisma.user_Notifications_History.create({
-      data: {
-        User_id: userIdInt,
-        Content: notificationContent,
-        Date: new Date(),
-        Type: 'New_Invitation'
-      }
-    });
+   
+    // ============== USER NOTIFICATION ==============
+console.log('📝 About to create user notification...');
+console.log('User ID:', userIdInt);
+console.log('User Name:', `${user.FirstName || ''} ${user.LastName || ''}`.trim());
+console.log('Job Title:', job.Job_role);
+console.log('Company Name:', job.company.Name);
+
+const userNotification = await prisma.user_Notifications_History.create({
+  data: {
+    User_id: userIdInt,
+    Content: `Your application for "${job.Job_role}" at ${job.company.Name} has been submitted`,
+    Date: new Date(),
+    Type: 'New'
+  }
+});
+
+console.log('✅ User notification created successfully:', userNotification);
 
     // ✅ INVALIDATE CACHE (Relation to User Dashboard)
     // User Stats: Invitations Count increases
