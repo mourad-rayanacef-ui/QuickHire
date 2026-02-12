@@ -1,7 +1,7 @@
 import React from 'react';
 import CApplication from "../CApplications/CApplications.jsx";
 import styles from './CApplicationList.module.css';
-import defaultAvatar from '../../../../public/applicantss/applicant1.svg'; // ✅ Only one default
+import defaultAvatar from '../../../../public/applicantss/applicant1.svg';
 
 function CApplicationsList({ applicants = [], onDelete, onAccept, onStatusChange }) {
   console.log('CApplicationsList received applicants:', applicants);
@@ -34,8 +34,12 @@ function CApplicationsList({ applicants = [], onDelete, onAccept, onStatusChange
           <CApplication
             key={applicant.id}
             applicant={{
-              id: applicant.id,
-              img: applicant.photo || defaultAvatar, // ✅ Use actual photo from database
+              // ✅ CRITICAL: Pass all required IDs for backend operations
+              applicationId: applicant.id,           // For DELETE from Job_Applications
+              userId: applicant.userId,              // For ACCEPT to Job_Hiring_History
+              jobId: applicant.jobId,                // For ACCEPT to get job details
+              // ✅ Display data
+              img: applicant.photo || defaultAvatar,
               fullName: applicant.name,
               score: applicant.score,
               roles: applicant.jobRole,

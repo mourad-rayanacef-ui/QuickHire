@@ -172,31 +172,40 @@ function CApplicationsLayout() {
     return type; // Return original if no match
   };
 
-  const handleAccept = async (applicant) => {
+  const handleAccept = async (applicantData) => {
+  try {
+    console.log('✅ Accepting applicant with data:', applicantData);
+    
+    // ✅ Call backend API to add user to Job_Hiring_History table
+    const response = await companyAPI.acceptApplicant({
+      applicationId: applicantData.applicationId,
+      userId: applicantData.userId,
+      jobId: applicantData.jobId,
+      jobName: applicantData.roles
+    });
 
-    try {
-      // ✅ Call backend API to add user to In_Chat table
-      const response = await companyAPI.acceptApplicant(applicant.id);
+    if (response.success) {
+      // Show success popup
+      setSelectedApplicant({
+        fullName: applicantData.fullName,
+        roles: applicantData.roles
+      });
+      setShowSuccessPopup(true);
 
-      if (response.success) {
-        // Show success popup
-        setSelectedApplicant(applicant);
-        setShowSuccessPopup(true);
-
-        // Remove the accepted applicant from the list
-        if (activeTab === 'applicants') {
-          const updatedAllApplicants = allApplicants.filter(app => app.id !== applicant.id);
-          setAllApplicants(updatedAllApplicants);
-          applyFilterAndPagination(updatedAllApplicants, activeFilter, currentPage, false);
-        }
-      } else {
-        alert('Failed to accept applicant. Please try again.');
+      // Remove the accepted applicant from the list
+      if (activeTab === 'applicants') {
+        const updatedAllApplicants = allApplicants.filter(app => app.id !== applicantData.applicationId);
+        setAllApplicants(updatedAllApplicants);
+        applyFilterAndPagination(updatedAllApplicants, activeFilter, currentPage, false);
       }
-    } catch (error) {
-      console.error('Error accepting applicant:', error);
+    } else {
       alert('Failed to accept applicant. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error('Error accepting applicant:', error);
+    alert('Failed to accept applicant. Please try again.');
+  }
+};
 
   const handleClosePopup = () => {
     // ✅ No need to refresh - we already removed the applicant locally
@@ -251,28 +260,30 @@ function CApplicationsLayout() {
     };
   };
 
-  const handleDeleteApplicant = async (id) => {
-    try {
-      if (activeTab === "applicants") {
-        // Call backend API to delete applicant
-        const response = await companyAPI.deleteApplication(id);
-        if (response.success) {
-          // Refresh the list
-          fetchAllApplicants();
-        }
-      } else {
-        // Call backend API to delete invitation
-        const response = await companyAPI.deleteInvitation(id);
-        if (response.success) {
-          // Refresh the list
-          fetchAllInvitations();
-        }
+  const handleDeleteApplicant = async (applicationId) => {
+  try {
+    console.log('🗑️ Deleting application with ID:', applicationId);
+    
+    if (activeTab === "applicants") {
+      // ✅ Call backend API to delete from Job_Applications table
+      const response = await companyAPI.deleteApplication(applicationId);
+      if (response.success) {
+        // Refresh the list
+        fetchAllApplicants();
       }
-    } catch (error) {
-      console.error('Error deleting:', error);
-      alert('Failed to delete. Please try again.');
+    } else {
+      // Call backend API to delete from Invitations table
+      const response = await companyAPI.deleteInvitation(applicationId);
+      if (response.success) {
+        // Refresh the list
+        fetchAllInvitations();
+      }
     }
-  };
+  } catch (error) {
+    console.error('Error deleting:', error);
+    alert('Failed to delete. Please try again.');
+  }
+};
 
   const filteredData = getFilteredData();
   const currentPagination = activeTab === 'applicants' ? applicantsPagination : invitationsPagination;

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from './CandidateCard.module.css';
 import PropTypes from 'prop-types';
 import { Star } from "lucide-react";
+import api from "../../services/api"; // ✅ Import the api instance
 
 const renderStars = (rating) =>
   Array.from({ length: 5 }, (_, i) => (
@@ -20,8 +21,8 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
   const [averageRating, setRating] = useState(2.5);
   const [invited, setInvited] = useState(false);
   const [inviting, setInviting] = useState(false);
-  const [hasRemoved, setHasRemoved] = useState(false); // Track if we've already triggered removal
-  const [processedEvents, setProcessedEvents] = useState(new Set()); // Track processed events
+  const [hasRemoved, setHasRemoved] = useState(false);
+  const [processedEvents, setProcessedEvents] = useState(new Set());
 
   useEffect(() => {
     // Use rating from stats if available, otherwise default to 2.5
@@ -37,13 +38,12 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
     // Check if already invited from localStorage
     const recentlyInvited = JSON.parse(localStorage.getItem('recentlyInvitedCandidates') || '[]');
     if (recentlyInvited.includes(id)) {
-      
       setInvited(true);
       setHasRemoved(true);
     }
   }, [stats, id]);
 
-  // ✅ FIXED: Event listener only updates local state, checks source
+  // Event listener only updates local state, checks source
   useEffect(() => {
     const handleExternalInvite = (event) => {
       const { userId, eventId, source } = event.detail;
@@ -54,12 +54,10 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
       }
       
       if (userId === id) {
-   
         // Add to processed events
         setProcessedEvents(prev => new Set([...prev, eventId]));
         
         // Only update local state if event is from UserDetailsPage
-        // If event is from CandidateCard, we're already handling it
         if (source === 'UserDetailsPage') {
           setInvited(true);
           setHasRemoved(true);
@@ -76,7 +74,6 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
 
   const handleInvite = async () => {
     if (invited || inviting || hasRemoved) {
-    
       return;
     }
 
@@ -85,7 +82,6 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
 
       // Get company info
       const companyData = JSON.parse(localStorage.getItem("user") || "{}");
- 
       const companyId = companyData.Company_id || companyData.id || companyData.company_id;
       const companyName = companyData.Name || companyData.name || companyData.companyName || "Your Company";
       
@@ -123,29 +119,18 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
         return;
       }
 
-   
-      // Send invitation (backend will create notification)
-      const invitationResponse = await fetch('https://quickhire-4d8p.onrender.com/api/Company/Invitations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          companyId: companyId,
-          userId: id,
-          jobName: "Open Position",
-          type: "Invitation"
-        }),
+      // ✅ FIXED: Use api instance instead of fetch
+      const { data: invitationData } = await api.post('/Company/Invitations', {
+        companyId: Number(companyId),
+        userId: Number(id),
+        jobName: "Open Position",
+        type: "Invitation"
       });
-
-      const invitationData = await invitationResponse.json();
 
       if (!invitationData.success) {
         throw new Error(invitationData.error || 'Failed to send invitation');
       }
 
- 
       // Update local state
       setInvited(true);
       setHasRemoved(true);
@@ -157,11 +142,11 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
         localStorage.setItem('recentlyInvitedCandidates', JSON.stringify(recentlyInvited));
       }
       
-      // ✅ FIXED: Call onInvite ONCE with proper parameters
+      // Call onInvite ONCE with proper parameters
       if (onInvite && typeof onInvite === 'function') {
-       
         onInvite(id, displayName);
       } 
+      
       // Show notification
       if (showAlert) {
         if (name && name.trim() !== "") {
@@ -171,7 +156,7 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
         }
       }
       
-      // ✅ Dispatch event with unique ID to notify other components
+      // Dispatch event with unique ID to notify other components
       const eventId = `card-invite-${id}-${Date.now()}`;
       window.dispatchEvent(new CustomEvent('candidateInvited', {
         detail: { 
@@ -184,8 +169,12 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
 
     } catch (error) {
       console.error('❌ Error inviting candidate:', error);
-      
-      if (error.message.includes('already') || error.message.includes('Duplicate')) {
+
+      // Handle duplicate/already invited error
+      if (error.message?.includes('already') || 
+          error.message?.includes('Duplicate') || 
+          error.response?.data?.error?.includes('already')) {
+        
         setInvited(true);
         setHasRemoved(true);
         
@@ -200,8 +189,9 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
           showAlert('You have already invited this candidate.', 'info');
         }
       } else {
+        const errorMessage = error.response?.data?.error || error.message || 'Failed to send invitation';
         if (showAlert) {
-          showAlert('Failed to send invitation: ' + error.message, 'error');
+          showAlert('Failed to send invitation: ' + errorMessage, 'error');
         }
       }
     } finally {
@@ -209,7 +199,7 @@ function CandidatePost({ id, pic, name, title, stats, description, skills, onInv
     }
   };
 
-  // ✅ Use safe name for display
+  // Use safe name for display
   const displayName = name && name.trim() !== "" ? name : "Candidate";
   const displayTitle = title && title.trim() !== "" ? title : "No Title";
 

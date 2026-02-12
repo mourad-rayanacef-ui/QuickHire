@@ -1,98 +1,93 @@
-import React from "react";
-import styles from "./CApplications.module.css"
-import Vector from "../../../../public/Vector.svg"
-import TrashIcon from "../../../../public/delete-button.svg"
+import React, { useState } from "react";
+import styles from "./CApplications.module.css";
+import Vector from "../../../../public/Vector.svg";
+import TrashIcon from "../../../../public/delete-button.svg";
+import { companyAPI } from '../../../services/api';
 
 function CApplication({ applicant, onDelete, onAccept, onStatusChange }) {
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isAccepting, setIsAccepting] = useState(false);
+
     const handleDelete = async () => {
-        if (!applicant.id) return;
+        if (!applicant.applicationId) {
+            console.error('❌ No application ID provided');
+            return;
+        }
         
+        if (!window.confirm(`Are you sure you want to delete ${applicant.fullName}'s application?`)) {
+            return;
+        }
+
+        setIsDeleting(true);
         try {
-            const token = localStorage.getItem('token');
-            
-          
-            // ✅ Call backend API to reject application
-            const response = await fetch(
-                `https://quickhire-4d8p.onrender.com/api/Company/Application/${applicant.id}/reject`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    }
-                }
-            );
+            // ✅ Call companyAPI.deleteApplication with the Application_id
+            const response = await companyAPI.deleteApplication(applicant.applicationId);
 
-            const data = await response.json();
-
-            if (data.success) {
-                console.log("Application rejected successfully");
-             
-                
-                // ✅ Update status locally or remove from list
-                if (onStatusChange) {
-                    onStatusChange(applicant.id, 'Rejected');
-                } else if (onDelete) {
-                    onDelete(applicant.id);
+            if (response.success) {
+                console.log("✅ Application deleted successfully");
+                // Call parent onDelete with the application ID
+                if (onDelete) {
+                    onDelete(applicant.applicationId);
                 }
             } else {
-                console.error("Failed to reject application:", data.error);
-             
+                console.error("❌ Failed to delete application:", response.error);
+                alert('Failed to delete application. Please try again.');
             }
-
         } catch (error) {
-            console.error("Reject application failed:", error);
-    
+            console.error("❌ Delete application failed:", error);
+            alert('Failed to delete application. Please try again.');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
     const handleAccept = async () => {
-        if (!applicant.id) return;
-        
+        if (!applicant.applicationId || !applicant.userId || !applicant.jobId) {
+            console.error('❌ Missing required data for accept:', {
+                applicationId: applicant.applicationId,
+                userId: applicant.userId,
+                jobId: applicant.jobId
+            });
+            alert('Missing required data to accept application.');
+            return;
+        }
+
+        setIsAccepting(true);
         try {
-            const token = localStorage.getItem('token');
-            
-            if (!token) {
-         
-                return;
-            }
+            // ✅ Call companyAPI.acceptApplicant with complete data
+            const response = await companyAPI.acceptApplicant({
+                applicationId: applicant.applicationId,
+                userId: applicant.userId,
+                jobId: applicant.jobId,
+                jobName: applicant.roles || "Position"
+            });
 
-            // ✅ Call backend API to accept application
-            const response = await fetch(
-                `https://quickhire-4d8p.onrender.com/api/Company/Application/${applicant.id}/accept`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    }
-                }
-            );
-
-            const data = await response.json();
-
-            if (data.success) {
-                console.log("Application accepted successfully");
-             
+            if (response.success) {
+                console.log("✅ Application accepted successfully");
                 
-                // ✅ Update status locally or call parent callback
-                if (onStatusChange) {
-                    onStatusChange(applicant.id, 'InContact');
-                } else if (onAccept) {
-                    onAccept(applicant);
+                // Call parent onAccept with complete applicant data
+                if (onAccept) {
+                    onAccept({
+                        applicationId: applicant.applicationId,
+                        userId: applicant.userId,
+                        jobId: applicant.jobId,
+                        fullName: applicant.fullName,
+                        roles: applicant.roles
+                    });
                 }
             } else {
-                console.error("Failed to accept application:", data.error);
-   
+                console.error("❌ Failed to accept application:", response.error);
+                alert('Failed to accept applicant. Please try again.');
             }
-
         } catch (error) {
-            console.error("Accept application failed:", error);
-     
+            console.error("❌ Accept application failed:", error);
+            alert('Failed to accept applicant. Please try again.');
+        } finally {
+            setIsAccepting(false);
         }
     };
 
-    return(
+    return (
         <div className={styles.ApplicationContainer}>
             {/* Header with applicant avatar and info */}
             <div className={styles.applicantHeader}>
@@ -100,6 +95,7 @@ function CApplication({ applicant, onDelete, onAccept, onStatusChange }) {
                     src={applicant.img} 
                     alt={applicant.fullName}
                     className={styles.applicantAvatar}
+                    onError={(e) => { e.target.src = '/default-avatar.png'; }}
                 />
                 <div className={styles.applicantInfo}>
                     <span className={styles.applicantName}>{applicant.fullName}</span>
@@ -113,7 +109,7 @@ function CApplication({ applicant, onDelete, onAccept, onStatusChange }) {
                     alt="Rating"
                     className={styles.ratingstar}
                 />
-                <span className={styles.scoreValue}>{applicant.score}</span>
+                <span className={styles.scoreValue}>{applicant.score?.toFixed(1) || '0.0'}</span>
             </div>
 
             {/* Job Role */}
@@ -127,7 +123,7 @@ function CApplication({ applicant, onDelete, onAccept, onStatusChange }) {
             </div>
 
             <div className={styles.detailItem} data-label="Type:">
-                <span className={`${styles.detailValue} ${styles[applicant.type.replace('-', '')]}`}>
+                <span className={`${styles.detailValue} ${styles[applicant.type?.replace('-', '') || 'fulltime']}`}>
                     {applicant.type}
                 </span>
             </div>
@@ -138,19 +134,19 @@ function CApplication({ applicant, onDelete, onAccept, onStatusChange }) {
                     alt="Decline application" 
                     className={styles.trashIcon}
                     onClick={handleDelete}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.5 : 1 }}
                     title="Decline Application"
                 />
                 <button 
                     className={styles.acceptButton}
                     onClick={handleAccept}
+                    disabled={isAccepting || isDeleting}
                 >
-                    Accept
+                    {isAccepting ? 'Accepting...' : 'Accept'}
                 </button>
             </div>
         </div>
     );
 }
-
 
 export default CApplication;

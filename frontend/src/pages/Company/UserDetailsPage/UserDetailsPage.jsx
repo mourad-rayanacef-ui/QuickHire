@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Star, MapPin, Mail, Phone, Linkedin, Globe, Briefcase } from "lucide-react";
 import "./UserDetailsPage.css";
+import api from "../../../services/api"; // ✅ Import the api instance
 
 // Skeleton Component for Loading State - MATCHING JobDetailsPage STYLE
 const UserDetailsSkeleton = () => (
@@ -168,26 +169,11 @@ export default function UserDetailsPage() {
     }
   }, [userId]);
 
-  // Optimized user details query with caching - EXACTLY LIKE JobDetailsPage
+  // ✅ FIXED: Optimized user details query with api instance - EXACTLY LIKE JobDetailsPage
   const { data: userData, isLoading, error } = useQuery({
     queryKey: ['userDetails', userId],
     queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const url = `https://quickhire-4d8p.onrender.com/api/Company/Users/${userId}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch user details');
-      }
+      const { data } = await api.get(`/Company/Users/${userId}`);
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch user details');
@@ -202,7 +188,6 @@ export default function UserDetailsPage() {
     refetchOnMount: false,
     enabled: !!userId,
     onSuccess: () => {
-      // Set page as ready when data loads
       setIsPageReady(true);
     },
     onError: () => {
@@ -222,10 +207,9 @@ export default function UserDetailsPage() {
     }
   }, [userData, userId]);
 
-  // Mutation for inviting candidate
+  // ✅ FIXED: Mutation for inviting candidate using api instance
   const inviteMutation = useMutation({
-    mutationFn: async () => {
-      const companyId = getCompanyId();
+    mutationFn: async ({ companyId, userId }) => {
       const token = localStorage.getItem("token");
       const accountType = localStorage.getItem("accountType");
 
@@ -241,25 +225,21 @@ export default function UserDetailsPage() {
         throw new Error("Unable to retrieve your company information. Please try logging in again.");
       }
 
-      const response = await fetch('https://quickhire-4d8p.onrender.com/api/Company/Invitations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          companyId: companyId,
-          userId: parseInt(userId),
-          jobName: "Open Position",
-          type: "Invitation"
-        }),
+      if (isNaN(userId) || userId <= 0) {
+        throw new Error(`Invalid user ID: ${userId}.`);
+      }
+
+      console.log('📤 UserDetails sending invitation:', { 
+        companyId: Number(companyId), 
+        userId: Number(userId) 
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send invitation');
-      }
+      const { data } = await api.post('/Company/Invitations', {
+        companyId: Number(companyId),
+        userId: Number(userId),
+        jobName: "Open Position",
+        type: "Invitation"
+      });
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to send invitation');
@@ -303,12 +283,14 @@ export default function UserDetailsPage() {
     onError: (error) => {
       console.error('❌ Error inviting user:', error);
 
-      if (error.message.includes('already sent') || error.message.includes('Duplicate')) {
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to send invitation';
+      
+      if (errorMessage.includes('already') || errorMessage.includes('Duplicate')) {
         setInvited(true);
         setHasDispatchedEvent(true);
         showNotification('You have already invited this candidate.', 'info');
       } else {
-        showNotification('Failed to send invitation: ' + error.message, 'error');
+        showNotification('Failed to send invitation: ' + errorMessage, 'error');
       }
     },
     onSettled: () => {
@@ -327,7 +309,17 @@ export default function UserDetailsPage() {
       return;
     }
 
-    inviteMutation.mutate();
+    const companyId = getCompanyId();
+    
+    if (!companyId) {
+      showNotification("Unable to retrieve your company information. Please log in again.", 'error');
+      return;
+    }
+
+    inviteMutation.mutate({
+      companyId: Number(companyId),
+      userId: Number(userId)
+    });
   };
 
   const handleReturn = () => {

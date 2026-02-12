@@ -206,6 +206,7 @@ export const userAPI = {
 
 // ==================== COMPANY API ====================
 export const companyAPI = {
+  // ============ PROFILE MANAGEMENT ============
   getProfile: async () => {
     const response = await api.get('/Company/Profile');
     return response.data;
@@ -228,6 +229,7 @@ export const companyAPI = {
     return response.data;
   },
 
+  // ============ MANAGER MANAGEMENT ============
   getManagers: async () => {
     const response = await api.get('/Company/Profile/Managers');
     return response.data;
@@ -250,11 +252,26 @@ export const companyAPI = {
     return response.data;
   },
 
+  // ============ INVITATION MANAGEMENT ============
   createInvitation: async (invitationData) => {
-    const response = await api.post('/Company/Invitation', invitationData);
+    const response = await api.post('/Company/Invitations', invitationData);
     return response.data;
   },
 
+  getInvitations: async (page = 1, limit = 10) => {
+    const response = await api.get('/Company/Invitations', {
+      params: { page, limit },
+    });
+    return response.data;
+  },
+
+  // ✅ FIXED: Delete invitation from Invitations table using Invitation_id
+  deleteInvitation: async (invitationId) => {
+    const response = await api.delete(`/Company/Invitations/${invitationId}`);
+    return response.data;
+  },
+
+  // ============ APPLICANT/APPLICATION MANAGEMENT ============
   getApplicants: async (page = 1, limit = 10) => {
     const response = await api.get('/Company/Applicants', {
       params: { page, limit },
@@ -267,45 +284,66 @@ export const companyAPI = {
     return response.data;
   },
 
+  // ✅ FIXED: Accept application - Creates Job_Hiring_History entry
   acceptApplication: async (applicationId) => {
+    console.warn('⚠️ acceptApplication is deprecated. Use acceptApplicant instead.');
     const response = await api.post(`/Company/Application/${applicationId}/accept`);
     return response.data;
   },
 
+  // ✅ FIXED: Reject application - Updates status to Rejected
   rejectApplication: async (applicationId) => {
+    console.warn('⚠️ rejectApplication is deprecated. Use deleteApplication instead.');
     const response = await api.post(`/Company/Application/${applicationId}/reject`);
     return response.data;
   },
 
-  getInvitations: async (page = 1, limit = 10) => {
-    const response = await api.get('/Company/Invitations', {
-      params: { page, limit },
+  // ✅ NEW: Accept applicant with complete data for Job_Hiring_History
+  acceptApplicant: async (data) => {
+    const response = await api.post('/Company/Applicants/accept', {
+      userId: Number(data.userId),
+      jobId: Number(data.jobId),
+      applicationId: Number(data.applicationId),
+      jobName: data.jobName || "Position"
     });
     return response.data;
   },
 
-  deleteApplication: async (id) => {
-    const response = await api.delete(`/Company/Application/${id}`);
+  // ✅ FIXED: Delete application from Job_Applications table using Application_id
+  deleteApplication: async (applicationId) => {
+    const response = await api.delete(`/Company/Applications/${applicationId}`);
     return response.data;
   },
 
-  deleteInvitation: async (id) => {
-    const response = await api.delete(`/Company/Invitation/${id}`);
-    return response.data;
-  },
-
+  // ============ JOB MANAGEMENT ============
   createJob: async (jobData) => {
-    const response = await api.post('/Company/PostJob', jobData);
-    return response.data;
-  },
-
-  getDashboardStats: async () => {
-    const response = await api.get('/Company/Dashboard');
+    const response = await api.post('/Company/Jobs', jobData);
     return response.data;
   },
 
   getCompanyJobs: async () => {
-    const response = await api.get('/Company/Dashboard/Jobs');
+    const response = await api.get('/Company/Jobs');
+    return response.data;
+  },
+
+  getJobById: async (jobId) => {
+    const response = await api.get(`/Company/Jobs/${jobId}`);
+    return response.data;
+  },
+
+  updateJob: async (jobId, jobData) => {
+    const response = await api.put(`/Company/Jobs/${jobId}`, jobData);
+    return response.data;
+  },
+
+  deleteJob: async (jobId) => {
+    const response = await api.delete(`/Company/Jobs/${jobId}`);
+    return response.data;
+  },
+
+  // ============ DASHBOARD & STATS ============
+  getDashboardStats: async () => {
+    const response = await api.get('/Company/Dashboard');
     return response.data;
   },
 
@@ -319,15 +357,53 @@ export const companyAPI = {
     return response.data;
   },
 
+  // ============ HIRING MANAGEMENT ============
   hireUser: async (hireData) => {
-    const response = await api.post('/Company/Dashboard/Hire', hireData);
+    const response = await api.post('/Company/Hire', hireData);
     return response.data;
   },
 
   refuseUser: async (refuseData) => {
-    const response = await api.post('/Company/Dashboard/RefuseUser', refuseData);
+    const response = await api.post('/Company/RefuseUser', refuseData);
     return response.data;
   },
+
+  // ============ JOB_HIRING_HISTORY MANAGEMENT ============
+  getHiringHistory: async () => {
+    const response = await api.get('/Company/HiringHistory');
+    return response.data;
+  },
+
+  getHiringHistoryByUser: async (userId) => {
+    const response = await api.get(`/Company/HiringHistory/User/${userId}`);
+    return response.data;
+  },
+
+  updateHiringHistory: async (historyId, data) => {
+    const response = await api.put(`/Company/HiringHistory/${historyId}`, data);
+    return response.data;
+  },
+
+  deleteHiringHistory: async (historyId) => {
+    const response = await api.delete(`/Company/HiringHistory/${historyId}`);
+    return response.data;
+  },
+
+  // ============ NOTIFICATION MANAGEMENT ============
+  getCompanyNotifications: async () => {
+    const response = await api.get('/Company/Notifications');
+    return response.data;
+  },
+
+  markNotificationAsRead: async (notificationId) => {
+    const response = await api.put(`/Company/Notifications/${notificationId}/read`);
+    return response.data;
+  },
+
+  deleteNotification: async (notificationId) => {
+    const response = await api.delete(`/Company/Notifications/${notificationId}`);
+    return response.data;
+  }
 };
 
 // ==================== CHATBOT API ====================
