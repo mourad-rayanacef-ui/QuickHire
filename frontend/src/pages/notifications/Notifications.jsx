@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query'; 
+import api from '../../api/api'; // ✅ Import the api instance
 import styles from './Notifications.module.css';
 
 // --- ICONS ---
@@ -53,20 +54,25 @@ const StarRating = ({ notificationId, userRole, initialIsRated }) => {
   const resource = userRole.charAt(0).toUpperCase() + userRole.slice(1).toLowerCase();
 
   const handleSubmit = async (e) => {
-    e.stopPropagation(); e.preventDefault();
+    e.stopPropagation(); 
+    e.preventDefault();
     if (rating === 0) return;
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    
     setLoading(true);
     try {
-      const response = await fetch(`https://quickhire-4d8p.onrender.com/api/${resource}/Notification/AddRating`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ notificationId, rating, role: userRole })
+      // ✅ Use api instance
+      const { data } = await api.patch(`/${resource}/Notification/AddRating`, {
+        notificationId, 
+        rating, 
+        role: userRole
       });
-      if (!response.ok) throw new Error("Failed");
+      
       setIsSubmitted(true);
-    } catch (error) { console.error(error); } finally { setLoading(false); }
+    } catch (error) { 
+      console.error(error); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   if (isSubmitted) return <span className={styles['rating-done']}>✓ Rated</span>;
@@ -116,16 +122,18 @@ const Notifications = () => {
 
   const getResourceName = () => UserType.type.charAt(0).toUpperCase() + UserType.type.slice(1).toLowerCase();
 
-  // 1. Fetcher function
+  // ✅ 1. Fetcher function using api instance
   const fetchNotifications = async (page) => {
     const resource = getResourceName();
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `https://quickhire-4d8p.onrender.com/api/${resource}/Notification?id=${UserType.id}&type=${UserType.type}&page=${page}&limit=${notificationsPerPage}`, 
-      { headers: { 'Authorization': `Bearer ${token}` } }
-    );
-    if (!response.ok) throw new Error('Failed to fetch');
-    const result = await response.json();
+    
+    const { data: result } = await api.get(`/${resource}/Notification`, {
+      params: {
+        id: UserType.id,
+        type: UserType.type,
+        page: page,
+        limit: notificationsPerPage
+      }
+    });
 
     return {
       totalCount: result.totalCount,
@@ -167,16 +175,20 @@ const Notifications = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // ✅ Delete notification using api instance
   const deleteNotification = async (notificationId) => {
     try {
       const resource = getResourceName();
-      await fetch(`https://quickhire-4d8p.onrender.com/api/${resource}/Notification/${notificationId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-        body: JSON.stringify({ id: UserType.id, type: UserType.type })
+      await api.delete(`/${resource}/Notification/${notificationId}`, {
+        data: { 
+          id: UserType.id, 
+          type: UserType.type 
+        }
       });
       queryClient.invalidateQueries(['notifications', UserType.id]);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e); 
+    }
   };
 
   return (

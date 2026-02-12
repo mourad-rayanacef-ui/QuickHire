@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import "./PostDescriptionPage.css";
 import { useNavigate, useParams } from 'react-router-dom';
+import api from "../../../services/api"; // ✅ Import the api instance
 
 // Skeleton Component for Loading State
 const JobDetailsSkeleton = () => (
@@ -110,10 +111,10 @@ export default function JobDetailsPage() {
   const [notification, setNotification] = useState(null);
   const [hasDispatchedEvent, setHasDispatchedEvent] = useState(false);
 
-  // ✅ FIX: Scroll to top when component mounts
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []); // Empty dependency array means this runs once when component mounts
+  }, []);
 
   const getUserId = () => {
     try {
@@ -157,26 +158,11 @@ export default function JobDetailsPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Optimized job details query with caching
+  // ✅ Optimized job details query with api instance
   const { data: jobData, isLoading, error } = useQuery({
     queryKey: ['jobDetails', jobId],
     queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const url = `https://quickhire-4d8p.onrender.com/api/User/Jobs/${jobId}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch job details');
-      }
+      const { data } = await api.get(`/User/Jobs/${jobId}`);
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch job details');
@@ -184,12 +170,12 @@ export default function JobDetailsPage() {
 
       return data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes - data considered fresh for 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes - cache persists for 10 minutes
-    retry: 1, // Only retry once on failure
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnMount: false, // Don't refetch on component mount if data is fresh
-    enabled: !!jobId, // Only run query if jobId exists
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: !!jobId,
   });
 
   const job = jobData?.job;
@@ -198,7 +184,6 @@ export default function JobDetailsPage() {
   useEffect(() => {
     const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
     if (appliedJobs.includes(parseInt(jobId))) {
-    
       setApplied(true);
     }
   }, [jobId]);
@@ -210,14 +195,13 @@ export default function JobDetailsPage() {
     }
   }, [jobData]);
 
-  // Mutation for applying to job
+  // ✅ Mutation for applying to job using api instance
   const applyMutation = useMutation({
     mutationFn: async () => {
       const userId = getUserId();
-      const token = localStorage.getItem("token");
       const accountType = localStorage.getItem("accountType");
 
-      if (!token) {
+      if (!localStorage.getItem("token")) {
         throw new Error("You must be logged in to apply for a job.");
       }
 
@@ -233,31 +217,10 @@ export default function JobDetailsPage() {
         throw new Error(`Invalid user ID: ${userId}.`);
       }
 
-      const response = await fetch('https://quickhire-4d8p.onrender.com/api/User/Applications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userId: userId,
-          jobId: parseInt(jobId),
-        }),
+      const { data } = await api.post('/User/Applications', {
+        userId: userId,
+        jobId: parseInt(jobId),
       });
-
-      const responseText = await response.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('❌ Failed to parse JSON:', parseError);
-        throw new Error('Server returned invalid JSON');
-      }
-
-      if (!response.ok) {
-        const errorMessage = data?.error || data?.message || `HTTP ${response.status}`;
-        throw new Error(errorMessage);
-      }
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to apply');
@@ -322,7 +285,6 @@ export default function JobDetailsPage() {
 
   const handleApply = () => {
     if (applied || applying || hasDispatchedEvent) {
-      
       return;
     }
 

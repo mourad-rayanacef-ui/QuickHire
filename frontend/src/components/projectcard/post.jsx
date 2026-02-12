@@ -3,6 +3,7 @@ import styles from "./post.module.css";
 import PropTypes from "prop-types";
 import { Link, useNavigate } from 'react-router-dom';
 import { Star, Users } from "lucide-react";
+import api from "../../services/api"; // ✅ Import the api instance
 
 function JobPost({ post, onApplySuccess, showAlert }) {
   const navigate = useNavigate();
@@ -10,8 +11,8 @@ function JobPost({ post, onApplySuccess, showAlert }) {
   const [applying, setApplying] = useState(false);
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState("");
-  const [hasRemoved, setHasRemoved] = useState(false); // Track if already removed
-  const [processedEvents, setProcessedEvents] = useState(new Set()); // Track processed events
+  const [hasRemoved, setHasRemoved] = useState(false);
+  const [processedEvents, setProcessedEvents] = useState(new Set());
 
   useEffect(() => {
     // Get user info from localStorage
@@ -71,7 +72,6 @@ function JobPost({ post, onApplySuccess, showAlert }) {
       }
       
       if (jobId === post.id) {
-  
         // Add to processed events
         setProcessedEvents(prev => new Set([...prev, eventId]));
         
@@ -139,20 +139,11 @@ function JobPost({ post, onApplySuccess, showAlert }) {
         jobId: post.id 
       });
 
-      // Send application to backend (backend will create notifications)
-      const applicationResponse = await fetch('https://quickhire-4d8p.onrender.com/api/User/Applications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userId: userId,
-          jobId: post.id,
-        }),
+      // ✅ Use api instance instead of fetch
+      const { data: applicationData } = await api.post('/User/Applications', {
+        userId: userId,
+        jobId: post.id,
       });
-
-      const applicationData = await applicationResponse.json();
 
       if (!applicationData.success) {
         throw new Error(applicationData.error || 'Failed to apply');
