@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query'; 
-import api from '../../api/api'; // ✅ Import the api instance
+import api from '../../services/api'; // ✅ Import the api instance
 import styles from './Notifications.module.css';
 
 // --- ICONS ---
