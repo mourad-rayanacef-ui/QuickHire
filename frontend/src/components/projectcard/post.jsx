@@ -91,137 +91,166 @@ function JobPost({ post, onApplySuccess, showAlert }) {
   }, [post.id, processedEvents]);
 
   const handleApply = async () => {
-    if (applied || applying || hasRemoved) {
-      console.log('⏸️ Apply blocked:', { applied, applying, hasRemoved });
-      return;
+  // Check if already applied
+  if (applied || applying || hasRemoved) {
+    console.log('⏸️ Apply blocked:', { applied, applying, hasRemoved });
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  const accountType = localStorage.getItem("accountType");
+
+  // Check if user is logged in
+  if (!token) {
+    if (showAlert) {
+      showAlert("You must be logged in to apply for a job.", 'error');
+    } else {
+      alert("You must be logged in to apply for a job.");
+    }
+    navigate('/SignIn');
+    return;
+  }
+
+  // Check if this is a USER account
+  if (accountType !== "user") {
+    if (showAlert) {
+      showAlert("Only users can apply for jobs.", 'error');
+    } else {
+      alert("Only users can apply for jobs.");
+    }
+    return;
+  }
+
+  // ✅ GET FRESH USER ID FROM LOCALSTORAGE
+  let currentUserId = null;
+  try {
+    const userData = localStorage.getItem("user");
+    if (userData && userData !== "[object Object]" && userData !== "null") {
+      const parsedUser = JSON.parse(userData);
+      currentUserId = parsedUser.User_id || parsedUser.userId || parsedUser.id || parsedUser.Company_id;
+    }
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+  }
+
+  // Check if we got a valid user ID
+  if (!currentUserId) {
+    if (showAlert) {
+      showAlert("Unable to retrieve your user information. Please log in again.", 'error');
+    } else {
+      alert("Unable to retrieve your user information. Please log in again.");
+    }
+    navigate('/SignIn');
+    return;
+  }
+
+  // ✅ SAFE JOB ID EXTRACTION
+  const jobId = post?.id || post?.Job_id || post?.jobId;
+  
+  if (!jobId) {
+    console.error('❌ No job ID found!', post);
+    showAlert('Invalid job data - missing ID', 'error');
+    return;
+  }
+
+  // ✅ DEBUG LOG
+  console.log('📦 JobPost apply payload:', { 
+    userId: currentUserId, 
+    jobId: jobId,
+    userIdType: typeof currentUserId,
+    jobIdType: typeof jobId,
+    parsedUserId: Number(currentUserId),
+    parsedJobId: Number(jobId)
+  });
+
+  try {
+    setApplying(true);
+
+    console.log('📤 Sending application to backend...', { 
+      userId: currentUserId, 
+      jobId: jobId 
+    });
+
+    // ✅ FIXED: Use currentUserId, not the state variable
+    const { data: applicationData } = await api.post('/User/Applications', {
+      userId: Number(currentUserId),  // ✅ Ensure it's a number
+      jobId: Number(jobId)           // ✅ Ensure it's a number
+    });
+
+    if (!applicationData.success) {
+      throw new Error(applicationData.error || 'Failed to apply');
     }
 
-    const token = localStorage.getItem("token");
-    const accountType = localStorage.getItem("accountType");
-
-    // Check if user is logged in
-    if (!token) {
-      if (showAlert) {
-        showAlert("You must be logged in to apply for a job.", 'error');
-      } else {
-        alert("You must be logged in to apply for a job.");
-      }
-      navigate('/SignIn');
-      return;
+    console.log('✅ Application submitted successfully!');
+    
+    // Update local state
+    setApplied(true);
+    setHasRemoved(true);
+    setUserId(currentUserId); // ✅ Update state AFTER successful application
+    
+    // Add to localStorage
+    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+    if (!appliedJobs.includes(jobId)) {
+      appliedJobs.push(jobId);
+      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
     }
-
-    // Check if this is a USER account
-    if (accountType !== "user") {
-      if (showAlert) {
-        showAlert("Only users can apply for jobs.", 'error');
-      } else {
-        alert("Only users can apply for jobs.");
-      }
-      return;
+    
+    // ✅ Call parent to remove job from list
+    if (onApplySuccess && typeof onApplySuccess === 'function') {
+      console.log('📞 Calling onApplySuccess callback for job:', jobId);
+      onApplySuccess(jobId, post.title);
     }
-
-    // Check if we got a valid user ID
-    if (!userId) {
-      if (showAlert) {
-        showAlert("Unable to retrieve your user information. Please log in again.", 'error');
-      } else {
-        alert("Unable to retrieve your user information. Please log in again.");
-      }
-      navigate('/SignIn');
-      return;
+    
+    // Show notification
+    if (showAlert) {
+      showAlert(`Applied to ${post.title}! Notifications sent.`, 'success');
     }
-
-    try {
-      setApplying(true);
-
-      console.log('📤 Sending application to backend...', { 
-        userId: userId, 
-        jobId: post.id 
-      });
-
-      // ✅ Use api instance instead of fetch
-      // ✅ CORRECT - Send ONLY the IDs, no nested objects
-const { data } = await api.post('/User/Applications', {
-  userId: Number(userId),  // ✅ Send as plain number, not in an object
-  jobId: Number(jobId)     // ✅ Send as plain number
-});
-
-      if (!applicationData.success) {
-        throw new Error(applicationData.error || 'Failed to apply');
+    
+    // Dispatch event
+    const eventId = `job-card-apply-${jobId}-${Date.now()}`;
+    window.dispatchEvent(new CustomEvent('jobApplied', {
+      detail: {
+        jobId: jobId,
+        jobTitle: post.title,
+        eventId: eventId,
+        source: 'JobPost'
       }
+    }));
 
-      console.log('✅ Application submitted successfully!');
-      
-      // Update local state
+  } catch (error) {
+    console.error('❌ Error applying to job:', error);
+
+    if (error.message.includes('already applied') || error.message.includes('Duplicate')) {
       setApplied(true);
       setHasRemoved(true);
       
-      // Add to localStorage
       const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      if (!appliedJobs.includes(post.id)) {
-        appliedJobs.push(post.id);
+      if (!appliedJobs.includes(jobId)) {
+        appliedJobs.push(jobId);
         localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
       }
       
-      // ✅ Call parent to remove job from list
-      if (onApplySuccess && typeof onApplySuccess === 'function') {
-        console.log('📞 Calling onApplySuccess callback for job:', post.id);
-        onApplySuccess(post.id, post.title);
-      } else {
-        console.log('⚠️ onApplySuccess callback not available or not a function');
-      }
-      
-      // Show notification
       if (showAlert) {
-        showAlert(`Applied to ${post.title}! Notifications sent.`, 'success');
+        showAlert('You have already applied to this job.', 'info');
       }
-      
-      // Dispatch event to notify JobDetailsPage and other JobPost components
-      const eventId = `job-card-apply-${post.id}-${Date.now()}`;
-      window.dispatchEvent(new CustomEvent('jobApplied', {
-        detail: {
-          jobId: post.id,
-          jobTitle: post.title,
-          eventId: eventId,
-          source: 'JobPost'
-        }
-      }));
-
-    } catch (error) {
-      console.error('❌ Error applying to job:', error);
-
-      if (error.message.includes('already applied') || error.message.includes('Duplicate')) {
-        setApplied(true);
-        setHasRemoved(true);
-        
-        // Add to localStorage even if duplicate
-        const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-        if (!appliedJobs.includes(post.id)) {
-          appliedJobs.push(post.id);
-          localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-        }
-        
-        if (showAlert) {
-          showAlert('You have already applied to this job.', 'info');
-        }
-      } else if (error.message.includes('Invalid token') || error.message.includes('No token')) {
-        if (showAlert) {
-          showAlert('Your session has expired. Please log in again.', 'error');
-        } else {
-          alert('Your session has expired. Please log in again.');
-        }
-        navigate('/SignIn');
+    } else if (error.message.includes('Invalid token') || error.message.includes('No token')) {
+      if (showAlert) {
+        showAlert('Your session has expired. Please log in again.', 'error');
       } else {
-        if (showAlert) {
-          showAlert(`Failed to apply: ${error.message}`, 'error');
-        } else {
-          alert(`Failed to apply: ${error.message}`);
-        }
+        alert('Your session has expired. Please log in again.');
       }
-    } finally {
-      setApplying(false);
+      navigate('/SignIn');
+    } else {
+      if (showAlert) {
+        showAlert(`Failed to apply: ${error.message}`, 'error');
+      } else {
+        alert(`Failed to apply: ${error.message}`);
+      }
     }
-  };
+  } finally {
+    setApplying(false);
+  }
+};
 
   // Check if job already has applied flag from backend
   useEffect(() => {
