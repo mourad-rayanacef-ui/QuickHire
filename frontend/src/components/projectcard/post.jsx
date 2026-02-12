@@ -140,10 +140,11 @@ function JobPost({ post, onApplySuccess, showAlert }) {
       });
 
       // ✅ Use api instance instead of fetch
-      const { data: applicationData } = await api.post('/User/Applications', {
-        userId: userId,
-        jobId: post.id,
-      });
+      // ✅ CORRECT - Send ONLY the IDs, no nested objects
+const { data } = await api.post('/User/Applications', {
+  userId: Number(userId),  // ✅ Send as plain number, not in an object
+  jobId: Number(jobId)     // ✅ Send as plain number
+});
 
       if (!applicationData.success) {
         throw new Error(applicationData.error || 'Failed to apply');

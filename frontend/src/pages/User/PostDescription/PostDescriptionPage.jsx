@@ -217,10 +217,11 @@ export default function JobDetailsPage() {
         throw new Error(`Invalid user ID: ${userId}.`);
       }
 
-      const { data } = await api.post('/User/Applications', {
-        userId: userId,
-        jobId: parseInt(jobId),
-      });
+      // ✅ CORRECT - Send ONLY the IDs, no nested objects
+const { data } = await api.post('/User/Applications', {
+  userId: Number(userId),  // ✅ Send as plain number, not in an object
+  jobId: Number(jobId)     // ✅ Send as plain number
+});
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to apply');
