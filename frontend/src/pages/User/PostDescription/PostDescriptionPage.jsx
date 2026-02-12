@@ -196,98 +196,98 @@ export default function JobDetailsPage() {
   }, [jobData]);
 
   // ✅ Mutation for applying to job using api instance
-  const applyMutation = useMutation({
-    mutationFn: async () => {
-      const userId = getUserId();
-      const accountType = localStorage.getItem("accountType");
+ const applyMutation = useMutation({
+  mutationFn: async ({ userId, jobId }) => {  // ✅ Accept params
+    const accountType = localStorage.getItem("accountType");
 
-      if (!localStorage.getItem("token")) {
-        throw new Error("You must be logged in to apply for a job.");
+    if (!localStorage.getItem("token")) {
+      throw new Error("You must be logged in to apply for a job.");
+    }
+
+    if (accountType !== "user") {
+      throw new Error("Only users can apply for jobs.");
+    }
+
+    if (!userId) {
+      throw new Error("Unable to retrieve your user information.");
+    }
+
+    if (isNaN(userId) || userId <= 0) {
+      throw new Error(`Invalid user ID: ${userId}.`);
+    }
+
+    console.log('📤 JobDetails sending:', { userId: Number(userId), jobId: Number(jobId) });
+
+    const { data } = await api.post('/User/Applications', {
+      userId: Number(userId),
+      jobId: Number(jobId)
+    });
+
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to apply');
+    }
+
+    return data;
+  },
+  onMutate: () => {
+    setApplying(true);
+  },
+  onSuccess: (data) => {
+    setApplied(true);
+    setHasDispatchedEvent(true);
+    
+    // Update localStorage
+    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+    if (!appliedJobs.includes(parseInt(jobId))) {
+      appliedJobs.push(parseInt(jobId));
+      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+    }
+    
+    // Show success notification
+    const message = data.notifications?.company?.created
+      ? `✅ Applied to ${truncateText(job?.title, 30)}! Company notified.`
+      : `✅ Applied to ${truncateText(job?.title, 30)}!`;
+    showNotification(message, 'success');
+    
+    // Dispatch event to update other components
+    const eventId = `details-apply-${jobId}-${Date.now()}`;
+    console.log('📢 Dispatching job applied event:', eventId);
+    
+    window.dispatchEvent(new CustomEvent('jobApplied', {
+      detail: {
+        jobId: parseInt(jobId),
+        jobTitle: job?.title,
+        eventId: eventId,
+        source: 'JobDetailsPage'
       }
+    }));
+    
+    // Invalidate the job details query to reflect the change
+    queryClient.invalidateQueries(['jobDetails', jobId]);
+  },
+  onError: (error) => {
+    console.error('❌ Error applying to job:', error);
 
-      if (accountType !== "user") {
-        throw new Error("Only users can apply for jobs.");
-      }
-
-      if (!userId) {
-        throw new Error("Unable to retrieve your user information.");
-      }
-
-      if (isNaN(userId) || userId <= 0) {
-        throw new Error(`Invalid user ID: ${userId}.`);
-      }
-
-      // ✅ CORRECT - Send ONLY the IDs, no nested objects
-const { data } = await api.post('/User/Applications', {
-  userId: Number(userId),  // ✅ Send as plain number, not in an object
-  jobId: Number(jobId)     // ✅ Send as plain number
-});
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to apply');
-      }
-
-      return data;
-    },
-    onMutate: () => {
-      setApplying(true);
-    },
-    onSuccess: (data) => {
+    if (error.message.includes('already applied') || error.message.includes('Duplicate')) {
       setApplied(true);
       setHasDispatchedEvent(true);
-      
-      // Update localStorage
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      if (!appliedJobs.includes(parseInt(jobId))) {
-        appliedJobs.push(parseInt(jobId));
-        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-      }
-      
-      // Show success notification
-      const message = data.notifications?.company?.created
-        ? `✅ Applied to ${truncateText(job?.title, 30)}! Company notified.`
-        : `✅ Applied to ${truncateText(job?.title, 30)}!`;
-      showNotification(message, 'success');
-      
-      // Dispatch event to update other components
-      const eventId = `details-apply-${jobId}-${Date.now()}`;
-      console.log('📢 Dispatching job applied event:', eventId);
-      
-      window.dispatchEvent(new CustomEvent('jobApplied', {
-        detail: {
-          jobId: parseInt(jobId),
-          jobTitle: job?.title,
-          eventId: eventId,
-          source: 'JobDetailsPage'
-        }
-      }));
-      
-      // Invalidate the job details query to reflect the change
-      queryClient.invalidateQueries(['jobDetails', jobId]);
-    },
-    onError: (error) => {
-      console.error('❌ Error applying to job:', error);
-
-      if (error.message.includes('already applied') || error.message.includes('Duplicate')) {
-        setApplied(true);
-        setHasDispatchedEvent(true);
-        showNotification('You have already applied to this job.', 'info');
-      } else if (error.message.includes('Invalid token') || error.message.includes('No token')) {
-        showNotification('Your session has expired. Please log in again.', 'error');
-        navigate('/SignIn');
-      } else {
-        showNotification(`Failed to apply: ${error.message}`, 'error');
-      }
-    },
-    onSettled: () => {
-      setApplying(false);
+      showNotification('You have already applied to this job.', 'info');
+    } else if (error.message.includes('Invalid token') || error.message.includes('No token')) {
+      showNotification('Your session has expired. Please log in again.', 'error');
+      navigate('/SignIn');
+    } else {
+      showNotification(`Failed to apply: ${error.message}`, 'error');
     }
-  });
+  },
+  onSettled: () => {
+    setApplying(false);
+  }
+});
 
- const handleApply = async () => {
+ const handleApply = () => {
   // Check if already applied
-  if (applied || applying || hasRemoved) {
-    console.log('⏸️ Apply blocked:', { applied, applying, hasRemoved });
+  if (applied || applying || hasDispatchedEvent) {
+    console.log('⏸️ Apply blocked:', { applied, applying, hasDispatchedEvent });
     return;
   }
 
@@ -296,22 +296,14 @@ const { data } = await api.post('/User/Applications', {
 
   // Check if user is logged in
   if (!token) {
-    if (showAlert) {
-      showAlert("You must be logged in to apply for a job.", 'error');
-    } else {
-      alert("You must be logged in to apply for a job.");
-    }
+    showNotification("You must be logged in to apply for a job.", 'error');
     navigate('/SignIn');
     return;
   }
 
   // Check if this is a USER account
   if (accountType !== "user") {
-    if (showAlert) {
-      showAlert("Only users can apply for jobs.", 'error');
-    } else {
-      alert("Only users can apply for jobs.");
-    }
+    showNotification("Only users can apply for jobs.", 'error');
     return;
   }
 
@@ -329,26 +321,13 @@ const { data } = await api.post('/User/Applications', {
 
   // Check if we got a valid user ID
   if (!currentUserId) {
-    if (showAlert) {
-      showAlert("Unable to retrieve your user information. Please log in again.", 'error');
-    } else {
-      alert("Unable to retrieve your user information. Please log in again.");
-    }
+    showNotification("Unable to retrieve your user information. Please log in again.", 'error');
     navigate('/SignIn');
     return;
   }
 
-  // ✅ SAFE JOB ID EXTRACTION
-  const jobId = post?.id || post?.Job_id || post?.jobId;
-  
-  if (!jobId) {
-    console.error('❌ No job ID found!', post);
-    showAlert('Invalid job data - missing ID', 'error');
-    return;
-  }
-
   // ✅ DEBUG LOG
-  console.log('📦 JobPost apply payload:', { 
+  console.log('📦 JobDetails apply payload:', { 
     userId: currentUserId, 
     jobId: jobId,
     userIdType: typeof currentUserId,
@@ -357,95 +336,12 @@ const { data } = await api.post('/User/Applications', {
     parsedJobId: Number(jobId)
   });
 
-  try {
-    setApplying(true);
-
-    console.log('📤 Sending application to backend...', { 
-      userId: currentUserId, 
-      jobId: jobId 
-    });
-
-    // ✅ FIXED: Use currentUserId, not the state variable
-    const { data: applicationData } = await api.post('/User/Applications', {
-      userId: Number(currentUserId),  // ✅ Ensure it's a number
-      jobId: Number(jobId)           // ✅ Ensure it's a number
-    });
-
-    if (!applicationData.success) {
-      throw new Error(applicationData.error || 'Failed to apply');
-    }
-
-    console.log('✅ Application submitted successfully!');
-    
-    // Update local state
-    setApplied(true);
-    setHasRemoved(true);
-    setUserId(currentUserId); // ✅ Update state AFTER successful application
-    
-    // Add to localStorage
-    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-    if (!appliedJobs.includes(jobId)) {
-      appliedJobs.push(jobId);
-      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-    }
-    
-    // ✅ Call parent to remove job from list
-    if (onApplySuccess && typeof onApplySuccess === 'function') {
-      console.log('📞 Calling onApplySuccess callback for job:', jobId);
-      onApplySuccess(jobId, post.title);
-    }
-    
-    // Show notification
-    if (showAlert) {
-      showAlert(`Applied to ${post.title}! Notifications sent.`, 'success');
-    }
-    
-    // Dispatch event
-    const eventId = `job-card-apply-${jobId}-${Date.now()}`;
-    window.dispatchEvent(new CustomEvent('jobApplied', {
-      detail: {
-        jobId: jobId,
-        jobTitle: post.title,
-        eventId: eventId,
-        source: 'JobPost'
-      }
-    }));
-
-  } catch (error) {
-    console.error('❌ Error applying to job:', error);
-
-    if (error.message.includes('already applied') || error.message.includes('Duplicate')) {
-      setApplied(true);
-      setHasRemoved(true);
-      
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      if (!appliedJobs.includes(jobId)) {
-        appliedJobs.push(jobId);
-        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-      }
-      
-      if (showAlert) {
-        showAlert('You have already applied to this job.', 'info');
-      }
-    } else if (error.message.includes('Invalid token') || error.message.includes('No token')) {
-      if (showAlert) {
-        showAlert('Your session has expired. Please log in again.', 'error');
-      } else {
-        alert('Your session has expired. Please log in again.');
-      }
-      navigate('/SignIn');
-    } else {
-      if (showAlert) {
-        showAlert(`Failed to apply: ${error.message}`, 'error');
-      } else {
-        alert(`Failed to apply: ${error.message}`);
-      }
-    }
-  } finally {
-    setApplying(false);
-  }
+  // ✅ Call the mutation with the fresh userId
+  applyMutation.mutate({
+    userId: Number(currentUserId),
+    jobId: Number(jobId)
+  });
 };
-
   const handleReturn = () => {
     navigate(-1);
   };
