@@ -559,6 +559,29 @@ const getJobById = async (req, res) => {
 // ========================================
 const applyToJob = async (req, res) => {
   try {
+    // ============== DEBUG: Check Database Tables ==============
+    try {
+      // Test if we can query the notifications tables
+      const testUserNotif = await prisma.user_Notifications_History.findFirst();
+      console.log('✅ User notifications table exists and is accessible');
+    } catch (testError) {
+      console.error('❌ Cannot access user_Notifications_History table:', {
+        message: testError.message,
+        code: testError.code
+      });
+    }
+
+    try {
+      const testCompanyNotif = await prisma.company_Notifications_History.findFirst();
+      console.log('✅ Company notifications table exists and is accessible');
+    } catch (testError) {
+      console.error('❌ Cannot access company_Notifications_History table:', {
+        message: testError.message,
+        code: testError.code
+      });
+    }
+    // ==========================================================
+
     let { userId, jobId } = req.body;
 
     if (!userId || !jobId) {
@@ -649,37 +672,65 @@ const applyToJob = async (req, res) => {
       }
     });
 
+    console.log('✅ Application created, now creating notifications...');
 
+    // ============== COMPANY NOTIFICATION ==============
     let companyNotification = null;
-    
     try {
+      console.log('📝 Creating company notification for Company_id:', job.company.Company_id);
+      console.log('Company data:', {
+        companyId: job.company.Company_id,
+        companyName: job.company.Name,
+        content: `${user.FirstName || ''} ${user.LastName || ''} has applied to your job "${job.Job_role}"`
+      });
+      
       companyNotification = await prisma.company_Notifications_History.create({
         data: {
           Company_id: job.company.Company_id,
           Content: `${user.FirstName || ''} ${user.LastName || ''} has applied to your job "${job.Job_role}"`,
           Date: new Date(),
-          Type: 'New_Invitation'  // Use New_Invitation for applications
+          Type: 'New_Invitation'
         }
       });
       
+      console.log('✅ Company notification created with ID:', companyNotification.Notification_id);
     } catch (companyError) {
-      console.error('❌ COMPANY notification failed:', companyError.message);
+      console.error('❌ COMPANY notification FAILED:', {
+        name: companyError.name,
+        code: companyError.code,
+        message: companyError.message,
+        meta: companyError.meta
+      });
     }
 
+    // ============== USER NOTIFICATION ==============
     let userNotification = null;
-    
     try {
+      console.log('📝 Creating user notification for User_id:', userIdInt);
+      console.log('User data:', {
+        userId: userIdInt,
+        userName: `${user.FirstName || ''} ${user.LastName || ''}`.trim(),
+        content: `Your application for "${job.Job_role}" at ${job.company.Name} has been submitted`,
+        type: 'New'
+      });
+      
       userNotification = await prisma.user_Notifications_History.create({
         data: {
           User_id: userIdInt,
           Content: `Your application for "${job.Job_role}" at ${job.company.Name} has been submitted`,
           Date: new Date(),
-          Type: 'New'  // User gets 'New' notification
+          Type: 'New'
         }
       });
       
+      console.log('✅ User notification created with ID:', userNotification.Notification_id);
     } catch (userError) {
-      console.error('❌ USER notification failed:', userError.message);
+      console.error('❌ USER notification FAILED:', {
+        name: userError.name,
+        code: userError.code,
+        message: userError.message,
+        meta: userError.meta
+      });
     }
 
     // ✅ INVALIDATE CACHE (Relation to Dashboard Stats)
@@ -692,7 +743,6 @@ const applyToJob = async (req, res) => {
     // 3. Update Company Job List (Applicants count on job card increases)
     await redis.del(`dashboard:company:jobs:${job.company.Company_id}`);
 
-
     // BUILD RESPONSE
     const responseData = {
       success: true,
@@ -703,14 +753,16 @@ const applyToJob = async (req, res) => {
           notificationId: companyNotification.Notification_id,
           companyId: companyNotification.Company_id
         } : {
-          created: false
+          created: false,
+          error: 'Company notification was not created'
         },
         user: userNotification ? {
           created: true,
           notificationId: userNotification.Notification_id,
           userId: userNotification.User_id
         } : {
-          created: false
+          created: false,
+          error: 'User notification was not created'
         }
       },
       application: {
